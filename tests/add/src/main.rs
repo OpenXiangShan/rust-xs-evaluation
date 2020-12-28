@@ -36,7 +36,6 @@ fn main() -> ! {
     unsafe {
         llvm_asm!(
             "
-        add     sp, a0, 0
         csrr    a2, mhartid
         lui     t0, %hi(_max_hart_id)
         add     t0, t0, %lo(_max_hart_id)
