@@ -8,3 +8,5 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+riscv = { git = "https://github.com/rust-embedded/riscv", features = ["inline-asm"] }
+linked_list_allocator = "0.8"
