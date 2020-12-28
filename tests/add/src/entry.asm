@@ -29,5 +29,3 @@ _start_abort:
     j _start_abort
 _start_success:
     call rust_main
-loop:
-    j loop

@@ -16,8 +16,8 @@ use riscv::register::{
 
 global_asm!(include_str!("entry.asm"));
 
-#[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+// #[global_allocator]
+// static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 #[cfg(not(test))]
 #[panic_handler]
@@ -66,17 +66,17 @@ pub extern "C" fn rust_main() -> ! {
     //     )
     // };
 
-    if mhartid::read() == 0 {
-        extern "C" {
-            fn _sheap();
-            fn _head_size();
-        }
-        let sheap = &mut _sheap as *mut _ as usize;
-        let heap_size = &_head_size as *const _ as usize;
-        unsafe {
-            ALLOCATOR.lock().init(sheap, heap_size);
-        }
-    }
+    // if mhartid::read() == 0 {
+    //     extern "C" {
+    //         fn _sheap();
+    //         fn _head_size();
+    //     }
+    //     let sheap = &mut _sheap as *mut _ as usize;
+    //     let heap_size = &_head_size as *const _ as usize;
+    //     unsafe {
+    //         ALLOCATOR.lock().init(sheap, heap_size);
+    //     }
+    // }
     let one = 1usize;
     let two  = 2usize;
     let three = 3usize;
