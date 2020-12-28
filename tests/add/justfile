@@ -1,8 +1,8 @@
 target := "riscv64gc-unknown-none-elf"
 mode := "debug"
 build-path := "../../target/" + target + "/" + mode + "/"
-m-firmware-file := build-path + "xstest-add"
-m-bin-file := build-path + "xstest-add.bin"
+m-firmware-file := build-path + "add"
+m-bin-file := build-path + "add.bin"
 
 objdump := "rust-objdump"
 objcopy := "rust-objcopy --binary-architecture=riscv64"
