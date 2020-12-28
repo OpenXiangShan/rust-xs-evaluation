@@ -1,5 +1,6 @@
 .section .text.entry
 .globl _start
+_start:
     csrr    a2, mhartid
     lui     t0, %hi(_max_hart_id)
     add     t0, t0, %lo(_max_hart_id)
