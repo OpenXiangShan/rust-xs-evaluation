@@ -8,9 +8,6 @@ _start:
     la      sp, _stack_start
     lui     t0, %hi(_hart_stack_size)
     add     t0, t0, %lo(_hart_stack_size)
-.ifdef __riscv_mul
-    mul     t0, a2, t0
-.else
     beqz    a2, 2f  // Jump if single-hart
     mv      t1, a2
     mv      t2, t0
@@ -19,7 +16,6 @@ _start:
     addi    t1, t1, -1
     bnez    t1, 1b
 2:
-.endif
     sub     sp, sp, t0
     csrw    mscratch, zero
     j _start_success
@@ -28,4 +24,4 @@ _start_abort:
     wfi
     j _start_abort
 _start_success:
-    call rust_main
+    j rust_main
