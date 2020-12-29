@@ -1,9 +1,9 @@
 target := "riscv64gc-unknown-none-elf"
 mode := "release"
 build-path := "../../target/" + target + "/" + mode + "/"
-m-firmware-file := build-path + "add"
-m-bin-file := build-path + "add.bin"
-asm-file := build-path + "add.asm"
+m-firmware-file := build-path + "am_cputests"
+m-bin-file := build-path + "am_cputests.bin"
+asm-file := build-path + "am_cputests.asm"
 
 objdump := "rust-objdump"
 objcopy := "rust-objcopy --binary-architecture=riscv64"

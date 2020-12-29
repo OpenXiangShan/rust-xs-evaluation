@@ -1,5 +1,5 @@
 [package]
-name = "add"
+name = "am_cputests"
 version = "0.1.0"
 authors = ["SKTT1Ryze <linuxgnulover@gmail.com>"]
 edition = "2018"

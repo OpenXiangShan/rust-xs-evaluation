@@ -61,7 +61,7 @@ impl BenchMark for AddTest {
         for i in 0..TEST_SIZE {
             list_0.push(i);
             list_1.push(i + 1);
-            result.push(i << 1usize + 1);
+            result.push((i << 1) + 1);
         }
         Self {
             list_0,
