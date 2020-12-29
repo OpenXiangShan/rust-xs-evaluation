@@ -6,24 +6,30 @@
 
 extern crate benchmark;
 extern crate alloc;
+extern crate bit;
+
+mod cputests;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
-use alloc::vec::Vec;
 // use linked_list_allocator::LockedHeap;
 use buddy_system_allocator::LockedHeap;
 use riscv::register::{
     mhartid,
 };
+
 use benchmark::BenchMark;
+use cputests::{
+    add::AddTest,
+    bit::BitTest,
+};
 
 global_asm!(include_str!("entry.asm"));
 
 const HEAP_SIZE: usize = 0x8000;
-const TEST_SIZE: usize = 20;
-const BATCH_SIZE: usize = 20;
+
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
@@ -46,39 +52,6 @@ fn oom(_layout: Layout) -> ! {
     loop {}
 }
 
-#[no_mangle]
-struct AddTest {
-    list_0: Vec<usize>,
-    list_1: Vec<usize>,
-    result: Vec<usize>,
-}
-
-impl BenchMark for AddTest {
-    fn new() -> Self {
-        let mut list_0: Vec<usize> = Vec::new();
-        let mut list_1: Vec<usize> = Vec::new();
-        let mut result: Vec<usize> = Vec::new();
-        for i in 0..TEST_SIZE {
-            list_0.push(i);
-            list_1.push(i + 1);
-            result.push((i << 1) + 1);
-        }
-        Self {
-            list_0,
-            list_1,
-            result,
-        }
-    }
-    fn test(&self) {
-        assert_eq!(self.list_0.len(), self.list_1.len());
-        assert_eq!(self.list_0.len(), self.result.len());
-        for _ in 0..BATCH_SIZE {
-            for i in 0..self.result.len() {
-                assert_eq!(self.list_0[i] + self.list_1[i], self.result[i]);
-            }
-        }
-    }
-}
 
 #[no_mangle]
 pub extern "C" fn rust_main() -> ! {
@@ -100,8 +73,11 @@ pub extern "C" fn rust_main() -> ! {
             ALLOCATOR.lock().init(sheap, HEAP_SIZE);
         }
     }
-    let add_test = AddTest::new();
+    let mut add_test = AddTest::new();
+    let mut bit_test = BitTest::new();
     add_test.test();
+    bit_test.test();
+
     unsafe { 
         llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(0) :: "volatile");
     }

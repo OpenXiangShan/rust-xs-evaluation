@@ -5,5 +5,5 @@
 
 pub trait BenchMark {
     fn new() -> Self;
-    fn test(&self);
+    fn test(&mut self);
 }
