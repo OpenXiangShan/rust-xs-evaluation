@@ -7,6 +7,7 @@
 extern crate benchmark;
 extern crate alloc;
 extern crate bit;
+extern crate xs_hal;
 
 mod cputests;
 
@@ -21,6 +22,8 @@ use riscv::register::{
 use alloc::vec::Vec;
 
 use benchmark::BenchMark;
+use xs_hal::XSPeripherals;
+
 use cputests::{
     add::AddTest,
     bit::BitTest,
@@ -31,6 +34,7 @@ global_asm!(include_str!("entry.asm"));
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
+static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new();
 const BENCH_SIZE: usize = 20;
 
 #[cfg(not(test))]
@@ -70,6 +74,8 @@ pub extern "C" fn rust_main() -> ! {
             r0::init_data(&mut _sdata, &mut _edata, &_sidata);
             ALLOCATOR.lock().init(sheap, heap_size);
         }
+        let _uart_lite = XSPERIPHERALS.take_uart_lite();
+
     }
     let mut results = Vec::new();
     let mut add_test = AddTest::new();

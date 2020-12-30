@@ -13,3 +13,4 @@ bit = "0.1.1"
 buddy_system_allocator = "0.6.0"
 r0 = "1.0"
 benchmark = { path = "../../benchmark" }
+xs-hal = { path = "../../xs-hal" }
