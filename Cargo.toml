@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "benchmark",
+    "xs-hal",
     "tests/*",
 ]
