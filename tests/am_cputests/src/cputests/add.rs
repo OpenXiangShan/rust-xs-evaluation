@@ -1,10 +1,12 @@
 /// AddTest Implementation
 
-use crate::benchmark::BenchMark;
-use crate::alloc::vec::Vec;
+use crate::benchmark::{BenchMark, CpuTestErr, xs_assert_eq};
+use crate::alloc::{
+    vec::Vec,
+    string::String,
+};
 
 const TEST_SIZE: usize = 20;
-const BATCH_SIZE: usize = 20;
 
 #[no_mangle]
 pub struct AddTest {
@@ -29,17 +31,36 @@ impl BenchMark for AddTest {
             result,
         }
     }
-    fn test(&mut self) {
-        assert_eq!(self.list_0.len(), self.list_1.len());
-        assert_eq!(self.list_0.len(), self.result.len());
-        for _ in 0..BATCH_SIZE {
+
+    fn single_test(&mut self) -> Result<String, CpuTestErr> {
+        xs_assert_eq!(self.list_0.len(), self.list_1.len(), self.err_type());
+        xs_assert_eq!(self.list_0.len(), self.result.len(), self.err_type());
+        for i in 0..self.result.len() {
+            xs_assert_eq!(self.list_0[i] + self.list_1[i], self.result[i], self.err_type());
+            self.list_0[i] = 0xffff_ffff_ffff_ffff;
+            self.list_1[i] = 0x1;
+            self.result[i] = 0x0;
+            xs_assert_eq!(self.result[i], self.list_0[i] + self.list_1[i], self.err_type());
+        }   
+        Ok(String::from("add_single_test"))
+    }
+
+    fn bench_test(&mut self, bench_size: usize) -> Result<String, CpuTestErr> {
+        xs_assert_eq!(self.list_0.len(), self.list_1.len(), self.err_type());
+        xs_assert_eq!(self.list_0.len(), self.result.len(), self.err_type());
+        for _ in 0..bench_size {
             for i in 0..self.result.len() {
-                assert_eq!(self.list_0[i] + self.list_1[i], self.result[i]);
-            }
+                xs_assert_eq!(self.list_0[i] + self.list_1[i], self.result[i], self.err_type());
+                self.list_0[i] = 0xffff_ffff_ffff_ffff;
+                self.list_1[i] = 0x1;
+                self.result[i] = 0x0;
+                xs_assert_eq!(self.result[i], self.list_0[i] + self.list_1[i], self.err_type());
+            }   
         }
-        self.list_0[0] = 0xffff_ffff_ffff_ffff;
-        self.list_1[0] = 0x1;
-        self.result[0] = 0x0;
-        assert_eq!(self.result[0], self.list_0[0] + self.list_1[0]);
+        Ok(String::from("add_bench_test"))
+    }
+
+    fn err_type(&self) -> CpuTestErr {
+        CpuTestErr::AddTestErr
     }
 }

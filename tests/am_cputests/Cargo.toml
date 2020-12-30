@@ -9,7 +9,6 @@ publish = false
 
 [dependencies]
 riscv = { git = "https://github.com/rust-embedded/riscv", features = ["inline-asm"] }
-linked_list_allocator = "0.8"
 bit = "0.1.1"
 buddy_system_allocator = "0.6.0"
 r0 = "1.0"
