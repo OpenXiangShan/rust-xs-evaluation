@@ -3,6 +3,8 @@
 #![feature(alloc_error_handler)]
 #![feature(global_asm)]
 #![feature(llvm_asm)]
+#![feature(const_raw_ptr_deref)]
+#![feature(const_mut_refs)]
 
 extern crate benchmark;
 extern crate alloc;
@@ -22,7 +24,7 @@ use riscv::register::{
 use alloc::vec::Vec;
 
 use benchmark::BenchMark;
-use xs_hal::XSPeripherals;
+use xs_hal::{XSPeripherals, UartLite};
 
 use cputests::{
     add::AddTest,
@@ -34,7 +36,10 @@ global_asm!(include_str!("entry.asm"));
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new();
+static mut XSPERIPHERALS: XSPeripherals = XSPeripherals {
+    uart_lite: unsafe { Some(&mut *(0x4060_0000 as *mut UartLite)) }
+};
+
 const BENCH_SIZE: usize = 20;
 
 #[cfg(not(test))]
@@ -74,7 +79,7 @@ pub extern "C" fn rust_main() -> ! {
             r0::init_data(&mut _sdata, &mut _edata, &_sidata);
             ALLOCATOR.lock().init(sheap, heap_size);
         }
-        let _uart_lite = XSPERIPHERALS.take_uart_lite();
+        let _uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
 
     }
     let mut results = Vec::new();
