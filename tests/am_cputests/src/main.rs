@@ -36,9 +36,6 @@ global_asm!(include_str!("entry.asm"));
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-static mut XSPERIPHERALS: XSPeripherals = XSPeripherals {
-    uart_lite: unsafe { Some(&mut *(0x4060_0000 as *mut UartLite)) }
-};
 
 const BENCH_SIZE: usize = 20;
 
@@ -79,7 +76,9 @@ pub extern "C" fn rust_main() -> ! {
             r0::init_data(&mut _sdata, &mut _edata, &_sidata);
             ALLOCATOR.lock().init(sheap, heap_size);
         }
-        let _uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
+        let mut xs_peripherals: XSPeripherals = XSPeripherals::new();
+
+        let _uart_lite = xs_peripherals.take_uart_lite();
 
     }
     let mut results = Vec::new();

@@ -2,11 +2,14 @@
 #![no_std]
 
 extern crate core;
-extern crate register;
+extern crate tock_registers;
 
 use core::mem::replace;
 #[allow(unused_imports)]
-use register::{mmio::*, register_bitfields, register_structs};
+use tock_registers::{
+    register_structs,
+    registers::{ReadOnly, ReadWrite},
+};
 
 pub const UARTLITE_MMIO: usize = 0x4060_0000;
 
@@ -36,6 +39,11 @@ pub struct XSPeripherals {
 }
 
 impl XSPeripherals {
+    pub fn new() -> Self {
+        Self {
+            uart_lite: unsafe { Some(&mut *(0x4060_0000 as *mut UartLite)) }
+        }
+    }
 
     pub fn take_uart_lite(&mut self) -> &'static mut UartLite {
         let uart = replace(&mut self.uart_lite, None);
