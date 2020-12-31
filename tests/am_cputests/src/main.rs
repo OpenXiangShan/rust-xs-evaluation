@@ -78,8 +78,9 @@ pub extern "C" fn rust_main() -> ! {
         }
         let mut xs_peripherals: XSPeripherals = XSPeripherals::new();
 
-        let _uart_lite = xs_peripherals.take_uart_lite();
-
+        let uart_lite = xs_peripherals.take_uart_lite();
+        uart_lite.init();
+        uart_lite.putchar('c' as u8);
     }
     let mut results = Vec::new();
     let mut add_test = AddTest::new();
