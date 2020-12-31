@@ -90,8 +90,8 @@ pub extern "C" fn rust_main() -> ! {
     let mut is_pass = true;
     for res in results.iter() {
         match res {
-            Ok(_string) => {
-                // TODO
+            Ok(string) => {
+                println!("{} pass", string);
             },
             Err(_err) => {
                 is_pass = false;
