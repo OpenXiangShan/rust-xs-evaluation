@@ -67,7 +67,7 @@ pub struct XSPeripherals {
 }
 
 impl XSPeripherals {
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             uart_lite: unsafe { Some(&mut *(UARTLITE_MMIO as *mut UartLite)) }
         }
