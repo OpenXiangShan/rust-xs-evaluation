@@ -11,7 +11,7 @@ extern crate bit;
 extern crate xs_hal;
 
 mod cputests;
-mod device;
+// mod device;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
@@ -27,14 +27,14 @@ use cputests::{
     add::AddTest,
     bit::BitTest,
 };
-// use xs_hal::XSPeripherals;
+use xs_hal::XSPeripherals;
 
 global_asm!(include_str!("entry.asm"));
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-
+static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new(); 
 const BENCH_SIZE: usize = 20;
 
 #[cfg(not(test))]
@@ -76,8 +76,9 @@ pub extern "C" fn rust_main() -> ! {
         }
         
     }
-    let uart_lite = device::init();
+    let uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
     uart_lite.putchar('c');
+    uart_lite.putchar('\n');
     let mut results = Vec::new();
     let mut add_test = AddTest::new();
     let mut bit_test = BitTest::new();

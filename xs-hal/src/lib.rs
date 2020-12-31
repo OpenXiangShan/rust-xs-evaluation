@@ -63,18 +63,20 @@ impl UartLite {
 }
 
 pub struct XSPeripherals {
-    uart_lite: Option<&'static mut UartLite>
+    // uart_lite: Option<&'static mut UartLite>
+    uart_lite: Option<usize>
 }
 
 impl XSPeripherals {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
-            uart_lite: unsafe { Some(&mut *(UARTLITE_MMIO as *mut UartLite)) }
+            // uart_lite: unsafe { Some(&mut *(UARTLITE_MMIO as *mut UartLite)) }
+            uart_lite: Some(UARTLITE_MMIO)
         }
     }
 
     pub fn take_uart_lite(&mut self) -> &'static mut UartLite {
-        let uart = replace(&mut self.uart_lite, None);
-        uart.unwrap()
+        let uart = replace(&mut self.uart_lite, None).unwrap();
+        unsafe { &mut *(uart as *mut UartLite) }
     }
 }
