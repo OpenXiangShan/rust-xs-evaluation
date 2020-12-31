@@ -11,7 +11,8 @@ extern crate bit;
 extern crate xs_hal;
 
 mod cputests;
-// mod device;
+#[macro_use]
+mod device;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
@@ -74,11 +75,11 @@ pub extern "C" fn rust_main() -> ! {
             r0::init_data(&mut _sdata, &mut _edata, &_sidata);
             ALLOCATOR.lock().init(sheap, heap_size);
         }
-        
+
+        device::init();
+        println!("Welcome to XiangShan!");
     }
-    let uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
-    uart_lite.putchar('c');
-    uart_lite.putchar('\n');
+    
     let mut results = Vec::new();
     let mut add_test = AddTest::new();
     let mut bit_test = BitTest::new();

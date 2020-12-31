@@ -1,11 +1,49 @@
 //! XiangShan Device Implementation
 //! 
 
-use xs_hal::{XSPeripherals, UartLite};
+use crate::XSPERIPHERALS;
+use core::fmt::{self, Write};
 
-pub fn init() -> &'static mut UartLite {
-    let mut xs_peripherals = XSPeripherals::new();
-    let uart_lite = xs_peripherals.take_uart_lite();
+pub fn init() {
+    let uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
     uart_lite.init();
-    uart_lite
+    unsafe { XSPERIPHERALS.release_uart_lite(); }
+}
+
+pub fn puts(s: &str) {
+    let uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
+    for ch in s.chars() {
+        uart_lite.putchar(ch);
+    }
+    unsafe { XSPERIPHERALS.release_uart_lite(); }
+}
+
+struct XSStdout;
+
+impl fmt::Write for XSStdout {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        puts(s);
+        Ok(())
+    }
+}
+
+pub fn _print(args: fmt::Arguments) {
+    XSStdout.write_fmt(args).unwrap();
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ({
+        $crate::device::_print(format_args!($($arg)*));
+    });
+}
+
+#[macro_export]
+macro_rules! println {
+    () => (
+        $crate::print!("\n")
+    );
+    ($($arg:tt)*) => (
+        $crate::print!("{}\n", format_args!($($arg)*))
+    )
 }
