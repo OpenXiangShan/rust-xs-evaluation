@@ -43,9 +43,9 @@ impl UartLite {
         self.ctrl_reg.write(Control::RST_FIFO.val(3));
     }
 
-    pub fn putchar(&mut self, ch: u8) {
-        if ch == '\n' as u8 {
-            self.putchar('\r' as u8);
+    pub fn putchar(&mut self, ch: char) {
+        if ch == '\n' {
+            self.putchar('\r');
         }
         while self.stat_reg.is_set(Status::TX_FULL) {}
         self.tx_fifo.set(ch as u32);
