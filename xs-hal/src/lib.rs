@@ -60,17 +60,16 @@ impl UartLite {
             false => Err(()),
         } 
     }
+
 }
 
 pub struct XSPeripherals {
-    // uart_lite: Option<&'static mut UartLite>
-    uart_lite: Option<usize>
+    uart_lite: Option<usize>    // base adderss of mmio register
 }
 
 impl XSPeripherals {
     pub const fn new() -> Self {
         Self {
-            // uart_lite: unsafe { Some(&mut *(UARTLITE_MMIO as *mut UartLite)) }
             uart_lite: Some(UARTLITE_MMIO)
         }
     }
@@ -78,5 +77,9 @@ impl XSPeripherals {
     pub fn take_uart_lite(&mut self) -> &'static mut UartLite {
         let uart = replace(&mut self.uart_lite, None).unwrap();
         unsafe { &mut *(uart as *mut UartLite) }
+    }
+
+    pub fn release_uart_lite(&mut self) {
+        let _uart = replace(&mut self.uart_lite, Some(UARTLITE_MMIO));
     }
 }
