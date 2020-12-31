@@ -5,7 +5,6 @@ use crate::alloc::{
     vec::Vec,
     string::String,
 };
-use crate::println;
 
 const TEST_SIZE: usize = 20;
 
@@ -43,7 +42,6 @@ impl BenchMark for AddTest {
             self.result[i] = 0x0;
             xs_assert_eq!(self.result[i], self.list_0[i] + self.list_1[i], self.err_type());
         }
-        println!("add_single_test pass");   
         Ok(String::from("add_single_test"))
     }
 
