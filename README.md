@@ -29,19 +29,12 @@ rustup target add riscv64gc-unknown-none-elf
 ```bash
 cargo install cargo-binutils
 rustup component add llvm-tools-preview
-```
-测试是否安装成功：  
-```bash
 rust-objdump --version
 ```
 
 ### 安装 just 工具
 ```bash
 cargo install just
-```
-
-测试是否安装成功：  
-```bash
 just --version
 ```
 
@@ -61,3 +54,8 @@ just run
 ```
 
 ## Test XiangShan
+重写 `AM` 中的 `cputest`:  
+- [x] add
+- [x] bit
+
+
