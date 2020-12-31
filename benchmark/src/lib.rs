@@ -15,6 +15,15 @@ pub enum CpuTestErr {
     BitTestErr,
 }
 
+impl CpuTestErr {
+    pub fn as_str(&self) -> &str {
+        match self {
+            CpuTestErr::AddTestErr => "add test error",
+            CpuTestErr::BitTestErr => "bit test error",
+        }
+    }
+}
+
 pub trait BenchMark {
     fn new() -> Self;
     fn single_test(&mut self) -> Result<String, CpuTestErr>;

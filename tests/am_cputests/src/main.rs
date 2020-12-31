@@ -40,9 +40,10 @@ const BENCH_SIZE: usize = 20;
 
 #[cfg(not(test))]
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    // panic, hit the bad trap
+fn panic(info: &PanicInfo) -> ! {
+    println!("[xs] {}", info);
     unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(1) :: "volatile"); }
+    // should not reach here
     loop {}
 }
 
@@ -93,7 +94,8 @@ pub extern "C" fn rust_main() -> ! {
             Ok(string) => {
                 println!("{} pass", string);
             },
-            Err(_err) => {
+            Err(err) => {
+                println!("{} failed", err.as_str());
                 is_pass = false;
             }
         }
