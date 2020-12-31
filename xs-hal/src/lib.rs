@@ -1,5 +1,8 @@
 //! XiangShan Hal Implementation
 #![no_std]
+#![feature(const_fn)]
+#![feature(const_raw_ptr_deref)]
+#![feature(const_mut_refs)]
 
 extern crate core;
 extern crate tock_registers;
@@ -64,7 +67,7 @@ pub struct XSPeripherals {
 }
 
 impl XSPeripherals {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             uart_lite: unsafe { Some(&mut *(UARTLITE_MMIO as *mut UartLite)) }
         }
