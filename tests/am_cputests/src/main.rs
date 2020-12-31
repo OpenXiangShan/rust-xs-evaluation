@@ -78,7 +78,8 @@ pub extern "C" fn rust_main() -> ! {
         }
 
         device::init();
-        println!("Welcome to XiangShan!");
+        device::print_logo();
+        println!("[xs] XiangShan core {} is running", mhartid::read());
     }
     
     let mut results = Vec::new();
@@ -92,10 +93,10 @@ pub extern "C" fn rust_main() -> ! {
     for res in results.iter() {
         match res {
             Ok(string) => {
-                println!("{} pass", string);
+                println!("[xs] {} pass", string);
             },
             Err(err) => {
-                println!("{} failed", err.as_str());
+                println!("[xs] {} failed", err.as_str());
                 is_pass = false;
             }
         }

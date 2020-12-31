@@ -83,3 +83,4 @@ impl XSPeripherals {
         let _uart = replace(&mut self.uart_lite, Some(UARTLITE_MMIO));
     }
 }
+
