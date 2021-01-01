@@ -18,7 +18,7 @@ pub struct MulU64Test {
 impl BenchMark for MulU64Test {
     fn new() -> Self {
         let test_data = vec![0xaeb1c2aa, 0x4500ff2b, 0x877190af, 0x11f42438];
-        let answer = vec![0x19d29ab9db1a18e4, 0xea15986d3ac3088e, 0x2649e980fc0db236, 0xfa4c43da0a4a7d30, 0x1299898e2c56b139, 0xdf8123d50a319e65, 0x4d6dfa84c15dd68, 0x38c5d79b9e4357a1, 0xf78b91cb1efc4248, 0x14255a47fdfcc40];
+        let answer = vec![0x7736200ddb1a18e4, 0x2f1697983ac3088e, 0x5c6d3cd9fc0db236, 0xc4068120a4a7d30, 0x1299898e2c56b139, 0x248223000a319e65, 0x4d6dfa84c15dd68, 0x47a8f8f99e4357a1, 0x97fb6031efc4248, 0x14255a47fdfcc40];
         Self {
             test_data,
             answer,
@@ -33,7 +33,7 @@ impl BenchMark for MulU64Test {
         let mut ans_index = 0;
         for i in 0..self.test_data.len() {
             for j in i..self.test_data.len() {
-                println!("0x{:X} * 0x{:X} = 0x{:X}, answer: 0x{:X}", self.test_data[i], self.test_data[j], self.test_data[i] * self.test_data[j], self.answer[ans_index]);
+                println!("0x{:x} * 0x{:x} = 0x{:x}, answer: 0x{:x}", self.test_data[i], self.test_data[j], self.test_data[i] * self.test_data[j], self.answer[ans_index]);
                 xs_assert_eq!(self.test_data[i] * self.test_data[j], self.answer[ans_index], self.err_type());
                 ans_index += 1;
             }
