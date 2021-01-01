@@ -31,7 +31,7 @@ impl BenchMark for MulU64Test {
     fn single_test(&mut self) -> Result<String, CpuTestErr> {
         let mut ans_index = 0;
         for i in 0..self.test_data.len() {
-            for j in 0..self.test_data.len() {
+            for j in i..self.test_data.len() {
                 xs_assert_eq!(self.test_data[i] as u64 * self.test_data[j] as u64, self.answer[ans_index], self.err_type());
                 ans_index += 1;
             }
@@ -43,7 +43,7 @@ impl BenchMark for MulU64Test {
         for _ in 0..bench_size {
             let mut ans_index = 0;
             for i in 0..self.test_data.len() {
-                for j in 0..self.test_data.len() {
+                for j in i..self.test_data.len() {
                     xs_assert_eq!((self.test_data[i] * self.test_data[j]) as u64, self.answer[ans_index], self.err_type());
                     ans_index += 1;
                 }
