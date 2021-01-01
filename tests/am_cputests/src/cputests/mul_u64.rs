@@ -33,7 +33,7 @@ impl BenchMark for MulU64Test {
         let mut ans_index = 0;
         for i in 0..self.test_data.len() {
             for j in i..self.test_data.len() {
-                println!("0x{:x} * 0x{:x} = 0x{:x}, answer: 0x{:x}", self.test_data[i], self.test_data[j], self.test_data[i] * self.test_data[j], self.answer[ans_index]);
+                // println!("0x{:x} * 0x{:x} = 0x{:x}, answer: 0x{:x}", self.test_data[i], self.test_data[j], self.test_data[i] * self.test_data[j], self.answer[ans_index]);
                 xs_assert_eq!(self.test_data[i] as u64 * self.test_data[j] as u64, self.answer[ans_index], self.err_type());
                 ans_index += 1;
             }
