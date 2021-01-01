@@ -4,9 +4,11 @@
 pub mod add;
 pub mod bit;
 pub mod add_u64;
+pub mod bubble_sort;
 
 use benchmark::{CpuTestErr, BenchMark};
 use alloc::{
+    vec,
     vec::Vec,
     string::String,
 };
@@ -14,15 +16,19 @@ use alloc::{
 const BENCH_SIZE: usize = 20;
 
 pub fn test_all() -> Vec<Result<String, CpuTestErr>> {
-    let mut results = Vec::new();
     let mut add_test = add::AddTest::new();
     let mut bit_test = bit::BitTest::new();
     let mut addu64_test = add_u64::AddU64Test::new();
-    results.push(add_test.single_test());
-    results.push(add_test.bench_test(BENCH_SIZE));
-    results.push(bit_test.single_test());
-    results.push(bit_test.bench_test(BENCH_SIZE));
-    results.push(addu64_test.single_test());
-    results.push(addu64_test.bench_test(BENCH_SIZE));
+    let mut bubble_sort_test = bubble_sort::BubbleSortTest::new();
+    let results = vec![
+        add_test.single_test(),
+        add_test.bench_test(BENCH_SIZE),
+        bit_test.single_test(),
+        bit_test.bench_test(BENCH_SIZE),
+        addu64_test.single_test(),
+        addu64_test.bench_test(BENCH_SIZE),
+        bubble_sort_test.single_test(),
+        bubble_sort_test.bench_test(BENCH_SIZE),
+    ];
     results
 }
