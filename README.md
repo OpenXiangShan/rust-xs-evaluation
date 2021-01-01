@@ -19,13 +19,8 @@ just run
 ```
 
 ## Test XiangShan
-重写 `AM` 中的 `cputest`:  
-- [x] add
-- [x] bit
-- [x] add-longlong
-- [x] mul-longlong
-- [x] div
-- [x] bubble-sort
++ 重写 `AM` 中的 `cputest`：[am_cputests](./tests/am_cputests)  
++ 基准测试：`TODO`
 
 ## XianShan Rust Runtime
 目前在搭建香山的 `Rust` 微架构运行时环境，[am_cputests](./tests/am_cputests) 就是基于这个简单运行时之上的。目前这个运行时还没提取出来成为一个单独的模块。  
