@@ -10,8 +10,8 @@ use alloc::{
 
 #[no_mangle]
 pub struct MulU64Test {
-    test_data: Vec<i32>,
-    answer: Vec<i64>,
+    test_data: Vec<u64>,
+    answer: Vec<u64>,
 }
 
 impl BenchMark for MulU64Test {
@@ -32,7 +32,7 @@ impl BenchMark for MulU64Test {
         let mut ans_index = 0;
         for i in 0..self.test_data.len() {
             for j in i..self.test_data.len() {
-                xs_assert_eq!(self.test_data[i] as i64 * self.test_data[j] as i64, self.answer[ans_index], self.err_type());
+                xs_assert_eq!(self.test_data[i] * self.test_data[j], self.answer[ans_index], self.err_type());
                 ans_index += 1;
             }
         }
@@ -44,7 +44,7 @@ impl BenchMark for MulU64Test {
             let mut ans_index = 0;
             for i in 0..self.test_data.len() {
                 for j in i..self.test_data.len() {
-                    xs_assert_eq!((self.test_data[i] * self.test_data[j]) as i64, self.answer[ans_index], self.err_type());
+                    xs_assert_eq!(self.test_data[i] * self.test_data[j], self.answer[ans_index], self.err_type());
                     ans_index += 1;
                 }
             }
