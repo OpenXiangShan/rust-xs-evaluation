@@ -20,14 +20,9 @@ use core::alloc::Layout;
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
 use riscv::register::{mhartid};
-use alloc::vec::Vec;
 
-use benchmark::BenchMark;
+use cputests::test_all;
 
-use cputests::{
-    add::AddTest,
-    bit::BitTest,
-};
 use xs_hal::XSPeripherals;
 
 global_asm!(include_str!("entry.asm"));
@@ -36,7 +31,6 @@ global_asm!(include_str!("entry.asm"));
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new(); 
-const BENCH_SIZE: usize = 20;
 
 #[cfg(not(test))]
 #[panic_handler]
@@ -82,13 +76,8 @@ pub extern "C" fn rust_main() -> ! {
         println!("[xs] XiangShan core {} is running", mhartid::read());
     }
     
-    let mut results = Vec::new();
-    let mut add_test = AddTest::new();
-    let mut bit_test = BitTest::new();
-    results.push(add_test.single_test());
-    results.push(add_test.bench_test(BENCH_SIZE));
-    results.push(bit_test.single_test());
-    results.push(bit_test.bench_test(BENCH_SIZE));
+    let results = test_all();
+    
     let mut is_pass = true;
     for res in results.iter() {
         match res {

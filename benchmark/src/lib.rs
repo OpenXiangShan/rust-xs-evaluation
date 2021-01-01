@@ -13,6 +13,7 @@ use alloc::string::String;
 pub enum CpuTestErr {
     AddTestErr,
     BitTestErr,
+    AddU64TestErr,
 }
 
 impl CpuTestErr {
@@ -20,6 +21,7 @@ impl CpuTestErr {
         match self {
             CpuTestErr::AddTestErr => "add test error",
             CpuTestErr::BitTestErr => "bit test error",
+            CpuTestErr::AddU64TestErr => "addu64 test error",
         }
     }
 }
