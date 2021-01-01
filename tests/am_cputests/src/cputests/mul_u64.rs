@@ -2,6 +2,7 @@
 /// 
 
 use crate::benchmark::*;
+#[allow(unused_imports)]
 use crate::println;
 use alloc::{
     vec,

@@ -16,6 +16,7 @@ pub enum CpuTestErr {
     AddU64TestErr,
     BuddleSortTestErr,
     MulU64TestErr,
+    DivTestErr,
 }
 
 impl CpuTestErr {
@@ -26,6 +27,7 @@ impl CpuTestErr {
             CpuTestErr::AddU64TestErr => "addu64 test error",
             CpuTestErr::BuddleSortTestErr => "buddle sort test error",
             CpuTestErr::MulU64TestErr => "mulu64 test error",
+            CpuTestErr::DivTestErr => "div test error",
         }
     }
 }
