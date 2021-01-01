@@ -2,6 +2,7 @@
 /// 
 
 use crate::benchmark::*;
+use crate::println;
 use alloc::{
     vec,
     vec::Vec,
@@ -32,6 +33,7 @@ impl BenchMark for MulU64Test {
         let mut ans_index = 0;
         for i in 0..self.test_data.len() {
             for j in i..self.test_data.len() {
+                println!("0x{:X} * 0x{:X} = 0x{:X}, answer: 0x{:X}", self.test_data[i], self.test_data[j], self.test_data[i] * self.test_data[j], self.answer[ans_index]);
                 xs_assert_eq!(self.test_data[i] * self.test_data[j], self.answer[ans_index], self.err_type());
                 ans_index += 1;
             }
