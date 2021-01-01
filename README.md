@@ -4,49 +4,14 @@
 [中文](./README.md) [English](./README_en.md)  
 
 ## Instruction
-香山处理核性能测试 Rust 语言实现  
-兼香山处理核微架构运行时 Rust 语言实现  
+香山处理核性能测试 `Rust` 语言实现  
+兼香山处理核 `Rust` 嵌入式支持库实现   
 
 ## Build
-### 安装 Rust 环境
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-一路回车就行。  
-
-测试是否安装成功：  
-```bash
-rustc --version
-```
-输出版本信息则表示安装成功。  
-
-### 安装 Rust 交叉编译链（RISC-V）
-```bash
-rustup target add riscv64gc-unknown-none-elf
-```
-
-### 安装 binutils 工具集
-```bash
-cargo install cargo-binutils
-rustup component add llvm-tools-preview
-rust-objdump --version
-```
-
-### 安装 just 工具
-```bash
-cargo install just
-just --version
-```
-
-### 编译香山可运行的二进制文件
-```bash
-cd rust-xs-evaluation
-cd tests/am_cputests
-just build
-```
-生成的二进制文件在 `rust-xs-evaluation/target/riscv64gc-unknown-none-elf/release` 目录下。  
+环境配置请看这里：[build](./doc/build.md)   
 
 ## Quick Start
+运行 `Rust` 版本的 `cputest`：  
 ```bash
 cd rust-xs-evaluation
 cd tests/am_cputests
@@ -57,5 +22,22 @@ just run
 重写 `AM` 中的 `cputest`:  
 - [x] add
 - [x] bit
+- [x] add-longlong
+- [x] mul-longlong
+- [x] div
+- [x] bubble-sort
+
+## XianShan Rust Runtime
+目前在搭建香山的 `Rust` 微架构运行时环境，[am_cputests](./tests/am_cputests) 就是基于这个简单运行时之上的。目前这个运行时还没提取出来成为一个单独的模块。  
+
+## Rust Embedded-Hal Protocol Implementation
+`Rust` 嵌入式生态有个 `embedded-hal` 标准，考虑遵循这个标准来写香山的 `Rust` 嵌入式支持库。  
+该项目下的 `xs-hal` 目录就是对此的尝试。  
+
+## Embedded Rust
+有关 `Rust` 嵌入式生态和 `embedded-hal` 标准可以参考这里：  
++ [Rust嵌入式生态](./img/rust_embedded_zoology.png)  
++ [embedded-hal](https://github.com/rust-embedded/embedded-hal)  
+
 
 
