@@ -9,7 +9,7 @@ use alloc::{
     vec::Vec,
 };
 
-const TEST_SIZE: usize = 100;
+const TEST_SIZE: usize = 20;
 
 #[no_mangle]
 pub struct DivTest {
