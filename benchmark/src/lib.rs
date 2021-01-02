@@ -17,6 +17,7 @@ pub enum CpuTestErr {
     BuddleSortTestErr,
     MulU64TestErr,
     DivTestErr,
+    LoadStoreTestErr,
 }
 
 impl CpuTestErr {
@@ -28,6 +29,7 @@ impl CpuTestErr {
             CpuTestErr::BuddleSortTestErr => "buddle sort test error",
             CpuTestErr::MulU64TestErr => "mulu64 test error",
             CpuTestErr::DivTestErr => "div test error",
+            CpuTestErr::LoadStoreTestErr => "load store error",
         }
     }
 }

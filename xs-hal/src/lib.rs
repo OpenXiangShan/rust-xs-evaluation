@@ -60,7 +60,6 @@ impl UartLite {
             false => Err(()),
         } 
     }
-
 }
 
 pub struct XSPeripherals {

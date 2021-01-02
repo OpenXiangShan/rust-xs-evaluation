@@ -7,6 +7,7 @@ pub mod add_u64;
 pub mod bubble_sort;
 pub mod mul_u64;
 pub mod div;
+pub mod load_store;
 
 use benchmark::{CpuTestErr, BenchMark};
 use alloc::{
@@ -24,6 +25,7 @@ pub fn test_all() -> Vec<Result<String, CpuTestErr>> {
     let mut bubble_sort_test = bubble_sort::BubbleSortTest::new();
     let mut mulu64_test = mul_u64::MulU64Test::new();
     let mut div_test = div::DivTest::new();
+    let mut loadstore_test = load_store::LoadStoreTest::new();
     let results = vec![
         add_test.single_test(),
         add_test.bench_test(BENCH_SIZE),
@@ -37,6 +39,8 @@ pub fn test_all() -> Vec<Result<String, CpuTestErr>> {
         mulu64_test.bench_test(BENCH_SIZE),
         div_test.single_test(),
         div_test.bench_test(BENCH_SIZE),
+        loadstore_test.single_test(),
+        loadstore_test.bench_test(BENCH_SIZE),
     ];
     results
 }
