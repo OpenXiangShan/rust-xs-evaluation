@@ -7,7 +7,6 @@ use crate::println;
 use alloc::{
     string::String,
 };
-use core::mem;
 
 #[no_mangle]
 #[repr(C)]
@@ -47,21 +46,25 @@ impl BenchMark for LoadStoreTest {
         xs_assert_eq!(self.mem.len() / 2, self.lwlr_ans.len(), self.err_type());
         let paddr = &self.mem as *const u16 as usize;
         for i in 0..self.mem.len() {
+            println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, unsafe { lh(paddr.wrapping_add(i * 2)) }, self.lh_ans[i]);
             xs_assert_eq!(
-                unsafe {lh(paddr.wrapping_add(i * 2)) },
+                unsafe { lh(paddr.wrapping_add(i * 2)) },
                 self.lh_ans[i],
                 self.err_type()
             );
         }
         for i in 0..self.mem.len() {
+            println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, unsafe { lhu(paddr.wrapping_add(i * 2)) }, self.lhu_ans[i]);
             xs_assert_eq!(
-                unsafe {lhu(paddr.wrapping_add(i * 2)) },
-                self.lh_ans[i],
+                unsafe { lhu(paddr.wrapping_add(i * 2)) },
+                self.lhu_ans[i],
                 self.err_type()
             );
         }
         for i in 0..self.mem.len() / 2 - 1 {
-            let 
+            let x = unsafe { lwu(paddr.wrapping_add(1 + i * 2))};
+            println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, x, self.lwlr_ans[i]);
+            xs_assert_eq!(x, self.lwlr_ans[i], self.err_type());
         }
         for i in 0..self.mem.len() {
             self.mem[i] = !(1 << (2 * i + 1));
@@ -76,14 +79,26 @@ impl BenchMark for LoadStoreTest {
         xs_assert_eq!(self.mem.len(), self.sh_ans.len(), self.err_type());
         xs_assert_eq!(self.mem.len() / 2, self.lwlr_ans.len(), self.err_type());
         for _ in 0..bench_size {
+            let paddr = &self.mem as *const u16 as usize;
             for i in 0..self.mem.len() {
-                xs_assert_eq!(self.mem[i] as i32, self.lh_ans[i], self.err_type());
+                println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, unsafe { lh(paddr.wrapping_add(i * 2)) }, self.lh_ans[i]);
+                xs_assert_eq!(
+                    unsafe { lh(paddr.wrapping_add(i * 2)) },
+                    self.lh_ans[i],
+                    self.err_type()
+                );
             }
             for i in 0..self.mem.len() {
-                xs_assert_eq!(self.mem[i] as u32, self.lhu_ans[i], self.err_type());
+                println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, unsafe { lhu(paddr.wrapping_add(i * 2)) }, self.lhu_ans[i]);
+                xs_assert_eq!(
+                    unsafe { lhu(paddr.wrapping_add(i * 2)) },
+                    self.lhu_ans[i],
+                    self.err_type()
+                );
             }
             for i in 0..self.mem.len() / 2 - 1 {
-                let x = unsafe { *((&self.mem as *const u16 as usize + 0x2 + 0x4 * i) as *const u32) };
+                let x = unsafe { lwu(paddr.wrapping_add(1 + i * 2))};
+                println!("[xs-debug] {} -> left: 0x{:x}, right: 0x{:x}", i, x, self.lwlr_ans[i]);
                 xs_assert_eq!(x, self.lwlr_ans[i], self.err_type());
             }
         }
@@ -95,32 +110,49 @@ impl BenchMark for LoadStoreTest {
     }
 }
 
+
+
 #[inline]
 unsafe fn lh(paddr: usize) -> u32 {
-    let mut ans: u32;
+    let mut res: u32;
     llvm_asm!("
         li      t0, (1 << 17)
         csrrs   t0, mstatus, t0
         lh     $0, 0($1)
         csrw    mstatus, t0
     "
-        :"=r"(ans) 
+        :"=r"(res) 
         :"r"(paddr)
         :"t0", "t1");
-    ans
+    res
 }
 
 #[inline]
 unsafe fn lhu(paddr: usize) -> u32 {
-    let mut ans: u32;
+    let mut res: u32;
     llvm_asm!("
         li      t0, (1 << 17)
         csrrs   t0, mstatus, t0
         lhu     $0, 0($1)
         csrw    mstatus, t0
     "
-        :"=r"(ans) 
+        :"=r"(res) 
         :"r"(paddr)
         :"t0", "t1");
-    ans
+    res
+}
+
+#[inline]
+unsafe fn lwu(paddr: usize) -> u32 {
+    let mut res: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lwu     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(res) 
+        :"r"(paddr)
+        :"t0", "t1");
+    res
 }
