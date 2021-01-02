@@ -7,12 +7,13 @@ use crate::println;
 use alloc::{
     string::String,
 };
+use core::mem;
 
 #[no_mangle]
 #[repr(C)]
 pub struct LoadStoreTest {
     mem: [u16; 8],
-    lh_ans: [i32; 8],
+    lh_ans: [u32; 8],
     lhu_ans: [u32; 8],
     sh_ans: [u32; 8],
     lwlr_ans: [u32; 4],
@@ -44,15 +45,23 @@ impl BenchMark for LoadStoreTest {
         xs_assert_eq!(self.mem.len(), self.lhu_ans.len(), self.err_type());
         xs_assert_eq!(self.mem.len(), self.sh_ans.len(), self.err_type());
         xs_assert_eq!(self.mem.len() / 2, self.lwlr_ans.len(), self.err_type());
+        let paddr = &self.mem as *const u16 as usize;
         for i in 0..self.mem.len() {
-            xs_assert_eq!(self.mem[i] as i32, self.lh_ans[i], self.err_type());
+            xs_assert_eq!(
+                unsafe {lh(paddr.wrapping_add(i * 2)) },
+                self.lh_ans[i],
+                self.err_type()
+            );
         }
         for i in 0..self.mem.len() {
-            xs_assert_eq!(self.mem[i] as u32, self.lhu_ans[i], self.err_type());
+            xs_assert_eq!(
+                unsafe {lhu(paddr.wrapping_add(i * 2)) },
+                self.lh_ans[i],
+                self.err_type()
+            );
         }
         for i in 0..self.mem.len() / 2 - 1 {
-            let x = unsafe { *((&self.mem as *const u16 as usize + 0x2 + 0x4 * i) as *const u32) };
-            xs_assert_eq!(x, self.lwlr_ans[i], self.err_type());
+            let 
         }
         for i in 0..self.mem.len() {
             self.mem[i] = !(1 << (2 * i + 1));
@@ -84,4 +93,34 @@ impl BenchMark for LoadStoreTest {
         }
         Ok(String::from("load_store_bench_test"))
     }
+}
+
+#[inline]
+unsafe fn lh(paddr: usize) -> u32 {
+    let mut ans: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lh     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(ans) 
+        :"r"(paddr)
+        :"t0", "t1");
+    ans
+}
+
+#[inline]
+unsafe fn lhu(paddr: usize) -> u32 {
+    let mut ans: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lhu     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(ans) 
+        :"r"(paddr)
+        :"t0", "t1");
+    ans
 }
