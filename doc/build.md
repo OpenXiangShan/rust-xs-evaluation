@@ -11,6 +11,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustc --version
 ```
 输出版本信息则表示安装成功。  
+如果提示命令找不到，则运行以下命令后再试一次：  
+```bash
+source $HOME/.cargo/env
+```
 
 ## 安装 Rust 交叉编译链（RISC-V）
 ```bash
