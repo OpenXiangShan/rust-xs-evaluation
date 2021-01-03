@@ -3,6 +3,7 @@
 
 use crate::XSPERIPHERALS;
 use core::fmt::{self, Write};
+use ansi_rgb::{Foreground, blue};
 
 pub fn init() {
     let uart_lite = unsafe { XSPERIPHERALS.take_uart_lite() };
@@ -58,11 +59,11 @@ macro_rules! println {
 // |___/\___| (_______/   
                        
 pub fn print_logo() {
-    println!(" ___  ___    ________  ");
-    println!("|\"  \\/\"  |  /\"       ) ");
-    println!(" \\   \\  /  (:   \\___/  ");
-    println!("  \\  \\/    \\___  \\    ");
-    println!("  /\\.  \\     __/  \\\\   ");
-    println!(" /  \\   \\   /\" \\   :)  ");
-    println!("|___/\\___| (_______/   ");
+    println!("{}", " ___  ___    ________  ".fg(blue()));
+    println!("{}", "|\"  \\/\"  |  /\"       ) ".fg(blue()));
+    println!("{}", " \\   \\  /  (:   \\___/  ".fg(blue()));
+    println!("{}", "  \\  \\/    \\___  \\    ".fg(blue()));
+    println!("{}", "  /\\.  \\     __/  \\\\   ".fg(blue()));
+    println!("{}", " /  \\   \\   /\" \\   :)  ".fg(blue()));
+    println!("{}", "|___/\\___| (_______/   ".fg(blue()));
 }

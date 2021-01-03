@@ -9,6 +9,7 @@ extern crate benchmark;
 extern crate alloc;
 extern crate bit;
 extern crate xs_hal;
+extern crate ansi_rgb;
 
 mod cputests;
 #[macro_use]
@@ -18,6 +19,7 @@ mod device;
 use core::alloc::Layout;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
+use ansi_rgb::{ Foreground, red, green };
 use buddy_system_allocator::LockedHeap;
 use riscv::register::{mhartid};
 
@@ -73,7 +75,7 @@ pub extern "C" fn rust_main() -> ! {
 
         device::init();
         device::print_logo();
-        println!("[xs] XiangShan core {} is running", mhartid::read());
+        println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     }
     
     let results = test_all();
@@ -82,10 +84,10 @@ pub extern "C" fn rust_main() -> ! {
     for res in results.iter() {
         match res {
             Ok(string) => {
-                println!("[xs] {} pass", string);
+                println!("[xs] {} {}", string, "pass".fg(green()));
             },
             Err(err) => {
-                println!("[xs] {} failed", err.as_str());
+                println!("[xs] {} {}", err.as_str(), "failed".fg(red()));
                 is_pass = false;
             }
         }

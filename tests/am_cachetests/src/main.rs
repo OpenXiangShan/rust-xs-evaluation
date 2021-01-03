@@ -7,15 +7,18 @@
 extern crate benchmark;
 extern crate alloc;
 extern crate xs_hal;
+extern crate ansi_rgb;
 
 #[macro_use]
 mod device;
+mod cachetests;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
+use ansi_rgb::{ Foreground, red };
 use riscv::register::{mhartid};
 use xs_hal::XSPeripherals;
 
@@ -67,7 +70,7 @@ pub extern "C" fn rust_main() -> ! {
 
         device::init();
         device::print_logo();
-        println!("[xs] XiangShan core {} is running", mhartid::read());
+        println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     }
 
     unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(0) :: "volatile"); }

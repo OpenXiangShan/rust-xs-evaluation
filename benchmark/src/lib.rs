@@ -34,6 +34,20 @@ impl CpuTestErr {
     }
 }
 
+#[no_mangle]
+#[repr(C)]
+pub enum CacheTestErr {
+    AccessTestErr,
+}
+
+impl CacheTestErr {
+    pub fn as_str(&self) -> &str {
+        match self {
+            CacheTestErr::AccessTestErr => "access test error",
+        }
+    }
+}
+
 pub trait BenchMark {
     fn new() -> Self;
     fn single_test(&mut self) -> Result<String, CpuTestErr>;
