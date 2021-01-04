@@ -28,18 +28,14 @@ impl BenchMark<CacheTestErr> for AccessTest {
         for i in 0..N {
             self.ans[i] = i as u32;
         }
-
         let start = CACHE_SIZE / 4;
-        
         for i in 0..N {
             self.ans[start + i] = (start + i) as  u32;
         }
-
         for i in 0..N {
             xs_assert_eq!(self.ans[i], i as u32, self.err_type());
             xs_assert_eq!(self.ans[start + i], (start + i) as u32, self.err_type());
         }
-
         Ok(String::from("access_single_test"))
     }
 
@@ -48,13 +44,10 @@ impl BenchMark<CacheTestErr> for AccessTest {
             for i in 0..N {
                 self.ans[i] = i as u32;
             }
-    
             let start = CACHE_SIZE / 4;
-            
             for i in 0..N {
                 self.ans[start + i] = (start + i) as  u32;
             }
-    
             for i in 0..N {
                 xs_assert_eq!(self.ans[i], i as u32, self.err_type());
                 xs_assert_eq!(self.ans[start + i], (start + i) as u32, self.err_type());

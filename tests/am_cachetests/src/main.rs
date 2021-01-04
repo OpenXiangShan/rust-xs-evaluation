@@ -21,7 +21,7 @@ use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red, green };
 use riscv::register::{mhartid};
 use benchmark::ErrType;
-use xs_hal::XSPeripherals;
+use xs_hal::{XSPeripherals, hit_trap};
 use cachetests::test_all;
 
 global_asm!(include_str!("entry.asm"));
@@ -35,7 +35,7 @@ static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new();
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("[xs] {}", info);
-    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(1) :: "volatile"); }
+    hit_trap(1);
     // should not reach here
     loop {}
 }
@@ -44,7 +44,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[alloc_error_handler]
 fn oom(_layout: Layout) -> ! {
     // oom hit the bad trap
-    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(1) :: "volatile"); }
+    hit_trap(1);
     loop {}
 }
 
@@ -87,6 +87,7 @@ pub extern "C" fn rust_main() -> ! {
             }
         }
     }
-    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
+    // unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
+    hit_trap(!is_pass as usize);
     loop {}
 }

@@ -3,6 +3,7 @@
 #![feature(const_fn)]
 #![feature(const_raw_ptr_deref)]
 #![feature(const_mut_refs)]
+#![feature(llvm_asm)]
 
 extern crate core;
 extern crate tock_registers;
@@ -83,3 +84,6 @@ impl XSPeripherals {
     }
 }
 
+pub fn hit_trap(trapcode: usize) {
+    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(trapcode) :: "volatile"); }
+}
