@@ -22,7 +22,7 @@ use core::panic::PanicInfo;
 use ansi_rgb::{ Foreground, red, green };
 use buddy_system_allocator::LockedHeap;
 use riscv::register::{mhartid};
-
+use benchmark::ErrType;
 use cputests::test_all;
 
 use xs_hal::XSPeripherals;
