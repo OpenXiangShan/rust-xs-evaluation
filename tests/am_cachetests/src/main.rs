@@ -18,10 +18,11 @@ use core::alloc::Layout;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
-use ansi_rgb::{ Foreground, red };
+use ansi_rgb::{ Foreground, red, green };
 use riscv::register::{mhartid};
+use benchmark::ErrType;
 use xs_hal::XSPeripherals;
-
+use cachetests::test_all;
 
 global_asm!(include_str!("entry.asm"));
 
@@ -73,6 +74,19 @@ pub extern "C" fn rust_main() -> ! {
         println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     }
 
-    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(0) :: "volatile"); }
+    let results = test_all();
+    let mut is_pass = true;
+    for res in results.iter() {
+        match res {
+            Ok(string) => {
+                println!("[xs] {} {}", string, "pass".fg(green()));
+            },
+            Err(err) => {
+                println!("[xs] {} {}", err.as_str(), "failed".fg(red()));
+                is_pass = false;
+            }
+        }
+    }
+    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
     loop {}
 }
