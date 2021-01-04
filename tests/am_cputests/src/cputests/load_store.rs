@@ -19,7 +19,7 @@ pub struct LoadStoreTest {
 }
 
 #[allow(overflowing_literals)]
-impl BenchMark for LoadStoreTest {
+impl BenchMark<CpuTestErr> for LoadStoreTest {
     fn new() -> Self {
         let mem = [0x0, 0x0258, 0x4abc, 0x7fff, 0x8000, 0x8100, 0xabcd, 0xffff];
         let lh_ans = [0x00000000, 0x00000258, 0x00004abc, 0x00007fff, 0xffff8000, 0xffff8100, 0xffffabcd, 0xffffffff];

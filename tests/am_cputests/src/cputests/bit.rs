@@ -9,7 +9,7 @@ pub struct BitTest {
     bit_val: usize
 }
 
-impl BenchMark for BitTest {
+impl BenchMark<CpuTestErr> for BitTest {
     fn new() -> Self {
         let bit_val = 0usize;
         Self {

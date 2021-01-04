@@ -16,7 +16,7 @@ pub struct DivTest {
     data: Vec<usize>,
 }
 
-impl BenchMark for DivTest {
+impl BenchMark<CpuTestErr> for DivTest {
     fn new() -> Self {
         let mut data = Vec::new();
         for i in 0..TEST_SIZE {

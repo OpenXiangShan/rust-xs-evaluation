@@ -13,7 +13,7 @@ pub struct AddU64Test {
     answer: Vec<u64>,
 }
 
-impl BenchMark for AddU64Test {
+impl BenchMark<CpuTestErr> for AddU64Test {
     fn new() -> Self {
         let mut test_data = Vec::new();
         test_data.push(0u64);

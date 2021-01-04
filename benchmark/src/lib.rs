@@ -7,6 +7,11 @@ extern crate alloc;
 
 use alloc::string::String;
 
+
+pub trait ErrType {
+    fn as_str(&self) -> &str;
+}
+
 // Test error enum
 #[no_mangle]
 #[repr(C)]
@@ -20,8 +25,8 @@ pub enum CpuTestErr {
     LoadStoreTestErr,
 }
 
-impl CpuTestErr {
-    pub fn as_str(&self) -> &str {
+impl ErrType for CpuTestErr {
+    fn as_str(&self) -> &str {
         match self {
             CpuTestErr::AddTestErr => "add test error",
             CpuTestErr::BitTestErr => "bit test error",
@@ -40,19 +45,19 @@ pub enum CacheTestErr {
     AccessTestErr,
 }
 
-impl CacheTestErr {
-    pub fn as_str(&self) -> &str {
+impl ErrType for CacheTestErr {
+    fn as_str(&self) -> &str {
         match self {
             CacheTestErr::AccessTestErr => "access test error",
         }
     }
 }
 
-pub trait BenchMark {
+pub trait BenchMark<T: ErrType> {
     fn new() -> Self;
-    fn single_test(&mut self) -> Result<String, CpuTestErr>;
-    fn bench_test(&mut self, bench_size: usize) -> Result<String, CpuTestErr>;
-    fn err_type(&self) -> CpuTestErr;
+    fn single_test(&mut self) -> Result<String, T>;
+    fn bench_test(&mut self, bench_size: usize) -> Result<String, T>;
+    fn err_type(&self) -> T;
 }
 
 #[macro_export]

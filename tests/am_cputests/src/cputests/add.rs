@@ -15,7 +15,7 @@ pub struct AddTest {
     result: Vec<usize>,
 }
 
-impl BenchMark for AddTest {
+impl BenchMark<CpuTestErr> for AddTest {
     fn new() -> Self {
         let mut list_0: Vec<usize> = Vec::new();
         let mut list_1: Vec<usize> = Vec::new();

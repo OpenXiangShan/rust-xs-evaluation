@@ -16,7 +16,7 @@ pub struct MulU64Test {
     answer: Vec<u64>,
 }
 
-impl BenchMark for MulU64Test {
+impl BenchMark<CpuTestErr> for MulU64Test {
     fn new() -> Self {
         let test_data = vec![0xaeb1c2aa, 0x4500ff2b, 0x877190af, 0x11f42438];
         let answer = vec![0x7736200ddb1a18e4, 0x2f1697983ac3088e, 0x5c6d3cd9fc0db236, 0xc4068120a4a7d30, 0x1299898e2c56b139, 0x248223000a319e65, 0x4d6dfa84c15dd68, 0x47a8f8f99e4357a1, 0x97fb6031efc4248, 0x14255a47fdfcc40];
