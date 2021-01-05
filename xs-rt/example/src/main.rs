@@ -26,6 +26,7 @@ extern "C" {
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
+    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(1) :: "volatile"); }
     // should not reach here
     loop {}
 }
@@ -33,6 +34,7 @@ fn panic(_info: &PanicInfo) -> ! {
 #[cfg(not(test))]
 #[alloc_error_handler]
 fn oom(_layout: Layout) -> ! {
+    unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(1) :: "volatile"); }
     // oom hit the bad trap
     loop {}
 }
