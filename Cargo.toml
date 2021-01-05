@@ -2,5 +2,7 @@
 members = [
     "benchmark",
     "xs-hal",
+    "xs-rt",
+    "xs-rt/macros",
     "tests/*",
 ]

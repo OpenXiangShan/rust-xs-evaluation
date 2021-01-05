@@ -1,0 +1,27 @@
+[package]
+version = "0.1.0"
+authors = ["hustccc <1276675421@qq.com>"]
+edition = "2018"
+description = "Attributes re-exported in `riscv-rt`"
+keywords = ["riscv", "runtime", "startup"]
+license = "MIT"
+name = "xs-rt-macros"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0"
+proc-macro2 = "1.0"
+
+[dependencies.syn]
+version = "1.0"
+features = ["extra-traits", "full"]
+
+[dependencies.rand]
+version = "0.7.3"
+default-features = false
+features = ["small_rng"]
+
