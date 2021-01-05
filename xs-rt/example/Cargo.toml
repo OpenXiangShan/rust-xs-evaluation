@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 xs-rt = { path = ".." }
-panic-halt = "0.2.0"
+buddy_system_allocator = "0.6.0"
