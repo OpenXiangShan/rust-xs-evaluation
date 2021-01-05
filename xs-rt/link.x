@@ -22,6 +22,9 @@ PROVIDE(_setup_interrupts = default_setup_interrupts);
 */
 PROVIDE(_mp_hook = default_mp_hook);
 
+OUTPUT_ARCH(riscv)
+ENTRY(_start)
+
 SECTIONS
 {
   .text.dummy (NOLOAD) :

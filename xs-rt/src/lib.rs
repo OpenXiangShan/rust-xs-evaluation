@@ -1,6 +1,5 @@
 //! Minimal startup / runtime for XiangShan CPU's
 #![no_std]
-#![no_main]
 #![feature(alloc_error_handler)]
 #![feature(llvm_asm, global_asm)]
 
