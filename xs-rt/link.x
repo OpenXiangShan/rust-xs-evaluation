@@ -5,19 +5,6 @@ PROVIDE(_max_hart_id = 0);
 PROVIDE(_hart_stack_size = 2K);
 PROVIDE(_heap_size = 0);
 
-PROVIDE(UserSoft = DefaultHandler);
-PROVIDE(SupervisorSoft = DefaultHandler);
-PROVIDE(MachineSoft = DefaultHandler);
-PROVIDE(UserTimer = DefaultHandler);
-PROVIDE(SupervisorTimer = DefaultHandler);
-PROVIDE(MachineTimer = DefaultHandler);
-PROVIDE(UserExternal = DefaultHandler);
-PROVIDE(SupervisorExternal = DefaultHandler);
-PROVIDE(MachineExternal = DefaultHandler);
-
-PROVIDE(DefaultHandler = DefaultInterruptHandler);
-PROVIDE(ExceptionHandler = DefaultExceptionHandler);
-
 /* # Pre-initialization function */
 /* If the user overrides this using the `#[pre_init]` attribute or by creating a `__pre_init` function,
    then the function this points to will be called before the RAM is initialized. */
@@ -119,44 +106,44 @@ SECTIONS
 
 /* Do not exceed this mark in the error messages above                                    | */
 ASSERT(ORIGIN(REGION_TEXT) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_TEXT must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_TEXT must be 4-byte aligned");
 
 ASSERT(ORIGIN(REGION_RODATA) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_RODATA must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_RODATA must be 4-byte aligned");
 
 ASSERT(ORIGIN(REGION_DATA) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_DATA must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_DATA must be 4-byte aligned");
 
 ASSERT(ORIGIN(REGION_HEAP) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_HEAP must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_HEAP must be 4-byte aligned");
 
 ASSERT(ORIGIN(REGION_TEXT) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_TEXT must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_TEXT must be 4-byte aligned");
 
 ASSERT(ORIGIN(REGION_STACK) % 4 == 0, "
-ERROR(riscv-rt): the start of the REGION_STACK must be 4-byte aligned");
+ERROR(xs-rt): the start of the REGION_STACK must be 4-byte aligned");
 
 ASSERT(_stext % 4 == 0, "
-ERROR(riscv-rt): `_stext` must be 4-byte aligned");
+ERROR(xs-rt): `_stext` must be 4-byte aligned");
 
 ASSERT(_sdata % 4 == 0 && _edata % 4 == 0, "
-BUG(riscv-rt): .data is not 4-byte aligned");
+BUG(xs-rt): .data is not 4-byte aligned");
 
 ASSERT(_sidata % 4 == 0, "
-BUG(riscv-rt): the LMA of .data is not 4-byte aligned");
+BUG(xs-rt): the LMA of .data is not 4-byte aligned");
 
 ASSERT(_sbss % 4 == 0 && _ebss % 4 == 0, "
-BUG(riscv-rt): .bss is not 4-byte aligned");
+BUG(xs-rt): .bss is not 4-byte aligned");
 
 ASSERT(_sheap % 4 == 0, "
-BUG(riscv-rt): start of .heap is not 4-byte aligned");
+BUG(xs-rt): start of .heap is not 4-byte aligned");
 
 ASSERT(_stext + SIZEOF(.text) < ORIGIN(REGION_TEXT) + LENGTH(REGION_TEXT), "
-ERROR(riscv-rt): The .text section must be placed inside the REGION_TEXT region.
+ERROR(xs-rt): The .text section must be placed inside the REGION_TEXT region.
 Set _stext to an address smaller than 'ORIGIN(REGION_TEXT) + LENGTH(REGION_TEXT)'");
 
 ASSERT(SIZEOF(.stack) > (_max_hart_id + 1) * _hart_stack_size, "
-ERROR(riscv-rt): .stack section is too small for allocating stacks for all the harts.
+ERROR(xs-rt): .stack section is too small for allocating stacks for all the harts.
 Consider changing `_max_hart_id` or `_hart_stack_size`.");
 
 ASSERT(SIZEOF(.got) == 0, "

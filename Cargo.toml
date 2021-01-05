@@ -4,5 +4,6 @@ members = [
     "xs-hal",
     "xs-rt",
     "xs-rt/macros",
+    "xs-rt/example",
     "tests/*",
 ]

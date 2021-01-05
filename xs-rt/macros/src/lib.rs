@@ -46,7 +46,7 @@ use proc_macro::TokenStream;
 ///
 /// ``` no_run
 /// # #![no_main]
-/// # use riscv_rt_macros::entry;
+/// # use xs_rt_macros::entry;
 /// #[entry]
 /// fn main() -> ! {
 ///     loop {
