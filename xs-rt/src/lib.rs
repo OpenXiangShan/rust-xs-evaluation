@@ -11,7 +11,7 @@ extern crate xs_rt_macros as macors;
 pub use macors::{entry, pre_init};
 
 global_asm!(
-    ".section .text.entry
+    ".section .init
     .globl _start
     _start:
         csrr    a2, mhartid
