@@ -1,4 +1,5 @@
 # Minimal startup / runtime for XiangShan CPU's
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
 Ref Rust RISC-V team:https://github.com/rust-embedded/wg#the-riscv-team  
 
 ## Minimum Supported Rust Version (MSRV)
@@ -50,5 +51,5 @@ fn main() -> {
 + 页表
 
 ## License
-TODO  
+MIT License  
 
