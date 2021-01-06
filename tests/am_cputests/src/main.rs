@@ -58,19 +58,23 @@ extern "C" {
 #[pre_init]
 #[no_mangle]
 unsafe fn before_main() {
-    let heap_bottom = &_sheap as *const u8 as usize;
-    let heap_size = &_heap_size as *const u8 as usize;
-    // println!("[{}] heap_bottom: 0x{:x}, heap_size: 0x{:x}", "xs".fg(red()), heap_bottom, heap_size);
-    ALLOCATOR.lock().init(heap_bottom, heap_size);
-    device::init();
-    device::print_logo();
-    println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
+    // TODO
 }
 
 
 #[entry]
 #[no_mangle]
 fn main() -> ! {
+    unsafe {
+        let heap_bottom = &_sheap as *const u8 as usize;
+        let heap_size = &_heap_size as *const u8 as usize;
+        // println!("[{}] heap_bottom: 0x{:x}, heap_size: 0x{:x}", "xs".fg(red()), heap_bottom, heap_size);
+        ALLOCATOR.lock().init(heap_bottom, heap_size);
+    }
+    device::init();
+    device::print_logo();
+    println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
+
     let results = test_all();
     
     let mut is_pass = true;

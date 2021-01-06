@@ -41,14 +41,17 @@ fn oom(_layout: Layout) -> ! {
 
 #[pre_init]
 #[no_mangle]
-unsafe fn allocator_init() {
-    let heap_bottom = &_sheap as *const u8 as usize;
-    let heap_size = &_heap_size as *const u8 as usize;
-    ALLOCATOR.lock().init(heap_bottom, heap_size);
+unsafe fn before_main() {
+    // do something before main()
 }
 
 #[entry]
 fn main() -> ! {
+    unsafe {
+        let heap_bottom = &_sheap as *const u8 as usize;
+        let heap_size = &_heap_size as *const u8 as usize;
+        ALLOCATOR.lock().init(heap_bottom, heap_size);
+    }
     let mut data = vec![1, 2, 3, 4, 5];
     data.push(6);
     data.push(7);
