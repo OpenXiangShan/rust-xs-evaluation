@@ -26,8 +26,7 @@ use benchmark::ErrType;
 use cputests::test_all;
 
 use xs_hal::{XSPeripherals,  hit_trap};
-
-global_asm!(include_str!("entry.asm"));
+use xs_rt::{entry, pre_init};
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
@@ -51,33 +50,26 @@ fn oom(_layout: Layout) -> ! {
     loop {}
 }
 
+extern "C" {
+    static _sheap: u8;
+    static _heap_size: u8;
+}
 
+#[pre_init]
+unsafe fn before_main() {
+    let heap_bottom = &_sheap as *const u8 as usize;
+    let heap_size = &_heap_size as *const u8 as usize;
+    // println!("[{}] heap_bottom: 0x{:x}, heap_size: 0x{:x}", "xs".fg(red()), heap_bottom, heap_size);
+    ALLOCATOR.lock().init(heap_bottom, heap_size);
+    device::init();
+    device::print_logo();
+    println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
+}
+
+
+#[entry]
 #[no_mangle]
-pub extern "C" fn rust_main() -> ! {
-    if mhartid::read() == 0 {
-        extern "C" {
-            static mut _ebss: u32;
-            static mut _sbss: u32;
-            static mut _edata: u32;
-            static mut _sdata: u32;
-            static _sidata: u32;
-            static _sheap: u8;
-            static _heap_size: u8;
-        }
-        
-        unsafe {
-            let sheap = & _sheap as *const u8 as usize;
-            let heap_size = &_heap_size as *const u8 as usize;
-            r0::zero_bss(&mut _sbss, &mut _ebss);
-            r0::init_data(&mut _sdata, &mut _edata, &_sidata);
-            ALLOCATOR.lock().init(sheap, heap_size);
-        }
-
-        device::init();
-        device::print_logo();
-        println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
-    }
-    
+fn main() -> ! {
     let results = test_all();
     
     let mut is_pass = true;
