@@ -122,7 +122,7 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
 /// # Examples
 ///
 /// ```
-/// # use riscv_rt_macros::pre_init;
+/// # use xs_rt_macros::pre_init;
 /// #[pre_init]
 /// unsafe fn before_main() {
 ///     // do something here

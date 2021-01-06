@@ -56,6 +56,7 @@ extern "C" {
 }
 
 #[pre_init]
+#[no_mangle]
 unsafe fn before_main() {
     let heap_bottom = &_sheap as *const u8 as usize;
     let heap_size = &_heap_size as *const u8 as usize;
