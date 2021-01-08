@@ -251,6 +251,86 @@
 //! ```
 //!
 //! Default implementation of this function wakes hart 0 and busy-loops all the other harts.
+//!
+//! Default implementation of this function wakes hart 0 and busy-loops all the other harts.
+//!
+//! ### `ExceptionHandler`
+//!
+//! This function is called when exception is occured. The exception reason can be decoded from the
+//! `mcause` register.
+//!
+//! This function can be redefined in the following way:
+//!
+//! ``` no_run
+//! #[export_name = "ExceptionHandler"]
+//! fn custom_exception_handler(trap_frame: &riscv_rt::TrapFrame) -> ! {
+//!     // ...
+//! }
+//! ```
+//! or
+//! ``` no_run
+//! #[no_mangle]
+//! fn ExceptionHandler(trap_frame: &riscv_rt::TrapFrame) -> ! {
+//!     // ...
+//! }
+//! ```
+//!
+//! Default implementation of this function stucks in a busy-loop.
+//!
+//!
+//! ### Core interrupt handlers
+//!
+//! This functions are called when corresponding interrupt is occured.
+//! You can define an interrupt handler with one of the following names:
+//! * `UserSoft`
+//! * `SupervisorSoft`
+//! * `MachineSoft`
+//! * `UserTimer`
+//! * `SupervisorTimer`
+//! * `MachineTimer`
+//! * `UserExternal`
+//! * `SupervisorExternal`
+//! * `MachineExternal`
+//!
+//! For example:
+//! ``` no_run
+//! #[export_name = "MachineTimer"]
+//! fn custom_timer_handler() {
+//!     // ...
+//! }
+//! ```
+//! or
+//! ``` no_run
+//! #[no_mangle]
+//! fn MachineTimer() {
+//!     // ...
+//! }
+//! ```
+//!
+//! If interrupt handler is not explicitly defined, `DefaultHandler` is called.
+//!
+//! ### `DefaultHandler`
+//!
+//! This function is called when interrupt without defined interrupt handler is occured.
+//! The interrupt reason can be decoded from the `mcause` register.
+//!
+//! This function can be redefined in the following way:
+//!
+//! ``` no_run
+//! #[export_name = "DefaultHandler"]
+//! fn custom_interrupt_handler() {
+//!     // ...
+//! }
+//! ```
+//! or
+//! ``` no_run
+//! #[no_mangle]
+//! fn DefaultHandler() {
+//!     // ...
+//! }
+//! ```
+//!
+//! Default implementation of this function stucks in a busy-loop.
 
 // NOTE: Adapted from cortex-m/src/lib.rs
 #![no_std]
@@ -264,6 +344,7 @@ extern crate riscv;
 extern crate xs_rt_macros as macors;
 
 pub use macors::{entry, pre_init};
+use riscv::register::mcause;
 
 global_asm!(
     ".section .init
@@ -339,6 +420,148 @@ pub unsafe extern "C" fn start_rust() -> ! {
 
     main();
 }
+
+/// Registers saved in trap handler
+#[allow(missing_docs)]
+#[repr(C)]
+pub struct TrapFrame {
+    pub ra: usize,
+    pub t0: usize,
+    pub t1: usize,
+    pub t2: usize,
+    pub t3: usize,
+    pub t4: usize,
+    pub t5: usize,
+    pub t6: usize,
+    pub a0: usize,
+    pub a1: usize,
+    pub a2: usize,
+    pub a3: usize,
+    pub a4: usize,
+    pub a5: usize,
+    pub a6: usize,
+    pub a7: usize,
+}
+
+/// Trap entry point rust (_start_trap_rust)
+///
+/// `mcause` is read to determine the cause of the trap. XLEN-1 bit indicates
+/// if it's an interrupt or an exception. The result is examined and ExceptionHandler
+/// or one of the core interrupt handlers is called.
+#[link_section = ".trap.rust"]
+#[export_name = "_start_trap_rust"]
+pub extern "C" fn start_trap_rust(trap_frame: *const TrapFrame) {
+    extern "C" {
+        fn ExceptionHandler(trap_frame: &TrapFrame);
+        fn DefaultHandler();
+    }
+
+    unsafe {
+        let cause = mcause::read();
+        if cause.is_exception() {
+            ExceptionHandler(&*trap_frame)
+        } else {
+            let code = cause.code();
+            if code < __INTERRUPTS.len() {
+                let h = &__INTERRUPTS[code];
+                if h.reserved == 0 {
+                    DefaultHandler();
+                } else {
+                    (h.handler)();
+                }
+            } else {
+                DefaultHandler();
+            }
+        }
+    }
+}
+
+#[doc(hidden)]
+#[no_mangle]
+#[allow(unused_variables, non_snake_case)]
+pub fn DefaultExceptionHandler(trap_frame: &TrapFrame) -> ! {
+    loop {
+        // Prevent this from turning into a UDF instruction
+        // see rust-lang/rust#28728 for details
+        continue;
+    }
+}
+
+#[doc(hidden)]
+#[no_mangle]
+#[allow(unused_variables, non_snake_case)]
+pub fn DefaultInterruptHandler() {
+    loop {
+        // Prevent this from turning into a UDF instruction
+        // see rust-lang/rust#28728 for details
+        continue;
+    }
+}
+
+/* Interrupts */
+#[doc(hidden)]
+pub enum Interrupt {
+    UserSoft,
+    SupervisorSoft,
+    MachineSoft,
+    UserTimer,
+    SupervisorTimer,
+    MachineTimer,
+    UserExternal,
+    SupervisorExternal,
+    MachineExternal,
+}
+
+pub use self::Interrupt as interrupt;
+
+extern "C" {
+    fn UserSoft();
+    fn SupervisorSoft();
+    fn MachineSoft();
+    fn UserTimer();
+    fn SupervisorTimer();
+    fn MachineTimer();
+    fn UserExternal();
+    fn SupervisorExternal();
+    fn MachineExternal();
+}
+
+#[doc(hidden)]
+pub union Vector {
+    handler: unsafe extern "C" fn(),
+    reserved: usize,
+}
+
+#[doc(hidden)]
+#[no_mangle]
+pub static __INTERRUPTS: [Vector; 12] = [
+    Vector { handler: UserSoft },
+    Vector {
+        handler: SupervisorSoft,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineSoft,
+    },
+    Vector { handler: UserTimer },
+    Vector {
+        handler: SupervisorTimer,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineTimer,
+    },
+    Vector {
+        handler: UserExternal,
+    },
+    Vector {
+        handler: SupervisorExternal,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineExternal,
+    },
+];
 
 /// Func that run before main  
 /// 
