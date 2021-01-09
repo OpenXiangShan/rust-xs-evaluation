@@ -21,13 +21,23 @@ const UARTLITE_MMIO: usize = 0x4060_0000;
 // const UARTLITE_TX_FULL: u8 = 0x08;
 // const UARTLITE_RX_VALID: u8 = 0x01;
 
+const CLINT_MMIO: usize = 0x3800_0000;
+
 register_structs! {
+    /// UartLite MMIO
     pub UartLite {
         (0x00 => rx_fifo: ReadOnly<u32>),
         (0x04 => tx_fifo: ReadWrite<u32>),
         (0x08 => stat_reg: ReadOnly<u32, Status::Register>),
         (0x0c => ctrl_reg: ReadWrite<u32, Control::Register>),
         (0x10 => @END),
+    },
+    /// Clint MMIO
+    pub Clint {
+        (0x0000 => msip: [ReadWrite<u32>; 1000]),
+        (0x4000 => mtimecmp: [ReadWrite<u64>; 999]),
+        (0xBFF8 => mtime: ReadOnly<u64>),
+        (0xC000 => @END),
     }
 }
 
@@ -60,6 +70,28 @@ impl UartLite {
             true => Ok(self.rx_fifo.get() as u8),
             false => Err(()),
         } 
+    }
+}
+
+impl Clint {
+    pub unsafe fn new() -> &'static mut Clint {
+        &mut *(CLINT_MMIO as *mut Clint)
+    } 
+
+    pub fn get_mtime(&self) -> u64 {
+        self.mtime.get()
+    }
+
+    pub fn set_timer(&mut self, hart_id: usize, instant: u64) {
+        self.mtimecmp[hart_id].set(instant);
+    }
+
+    pub fn send_soft(&mut self, hart_id: usize) {
+        self.msip[hart_id].set(1);
+    }
+
+    pub fn clear_soft(&mut self, hart_id: usize) {
+        self.msip[hart_id].set(0);
     }
 }
 

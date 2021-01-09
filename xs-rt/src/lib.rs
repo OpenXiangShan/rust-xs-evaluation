@@ -1,6 +1,7 @@
 //! Minimal startup / runtime for XiangShan CPU's
 //!
 //! Copyright 2021 Rust RISC-V team:https://github.com/rust-embedded/wg#the-riscv-team
+//! Ref: https://github.com/rust-embedded/riscv-rt/blob/master/src/lib.rs  
 //! # Minimum Supported Rust Version (MSRV)
 //!
 //! # Features
@@ -566,6 +567,7 @@ pub static __INTERRUPTS: [Vector; 12] = [
         handler: MachineExternal,
     },
 ];
+
 
 global_asm!(
     "/*
