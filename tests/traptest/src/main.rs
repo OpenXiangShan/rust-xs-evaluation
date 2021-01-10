@@ -17,8 +17,8 @@ use core::alloc::Layout;
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red};
-use riscv::register::{mhartid};
-use xs_hal::{XSPeripherals, hit_trap};
+use riscv::register::{mhartid, mie, time, mstatus};
+use xs_hal::{XSPeripherals, hit_trap, Clint};
 use xs_rt::{entry, pre_init};
 
 #[global_allocator]
@@ -26,6 +26,9 @@ static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new(); 
 
+const INTERVAL: u64 = 390000000 / 200;
+
+static  mut COUNTER: usize = 0;
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -64,7 +67,25 @@ fn main() -> ! {
     device::init();
     device::print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
+    unsafe {
+        mie::set_mtimer();
+        mstatus::set_mie();
+        let clint = Clint::new();
+        clint.set_timer(mhartid::read(), clint.get_mtime() + INTERVAL);
+    }
     // unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
     hit_trap(0);
     loop {}
+}
+
+#[export_name = "MachineTimer"]
+fn mtimer_handler() {
+    unsafe {
+        let clint = Clint::new();
+        clint.set_timer(mhartid::read(), time::read64() + INTERVAL);
+        COUNTER += 1;
+        if COUNTER % 10 == 0 {
+            println!("[xs] timer interrupt! counter: {}", COUNTER);
+        }
+    }
 }

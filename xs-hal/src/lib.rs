@@ -21,8 +21,8 @@ const UARTLITE_MMIO: usize = 0x4060_0000;
 // const UARTLITE_TX_FULL: u8 = 0x08;
 // const UARTLITE_RX_VALID: u8 = 0x01;
 
-const CLINT_MMIO: usize = 0x3800_0000;
-
+const CLINT_MMIO: usize = 0x0200_0000;
+    
 register_structs! {
     /// UartLite MMIO
     pub UartLite {
@@ -34,8 +34,10 @@ register_structs! {
     },
     /// Clint MMIO
     pub Clint {
-        (0x0000 => msip: [ReadWrite<u32>; 1000]),
-        (0x4000 => mtimecmp: [ReadWrite<u64>; 999]),
+        (0x0000 => msip: [ReadWrite<u32>; 2]),
+        (0x0008 => _reserved_0),
+        (0x4000 => mtimecmp: [ReadWrite<u64>; 2]),
+        (0x4010 => _reserved_1),
         (0xBFF8 => mtime: ReadOnly<u64>),
         (0xC000 => @END),
     }
