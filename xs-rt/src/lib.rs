@@ -338,14 +338,18 @@
 #![deny(missing_docs)]
 #![feature(alloc_error_handler)]
 #![feature(llvm_asm, global_asm)]
-
+#![feature(naked_functions)]
+#![feature(asm)]
 
 extern crate r0;
 extern crate riscv;
 extern crate xs_rt_macros as macors;
 
 pub use macors::{entry, pre_init};
-use riscv::register::mcause;
+use riscv::register::{
+    mcause,
+    mtvec::{self, TrapMode},
+};
 
 global_asm!(
     ".section .init
@@ -568,72 +572,71 @@ pub static __INTERRUPTS: [Vector; 12] = [
     },
 ];
 
+#[doc(hidden)]
+#[no_mangle]
+pub fn default_setup_interrupts() {
+    unsafe { mtvec::write(start_trap as usize, TrapMode::Direct); }
+}
 
-global_asm!(
-    "/*
-    Trap entry point (_start_trap)
-
-    Saves caller saved registers ra, t0..6, a0..7, calls _start_trap_rust,
-    restores caller saved registers and then returns.
-*/
-.section .trap
-.global _start_trap
-/* Make it .weak so PAC/HAL can provide their own if needed. */
-.weak _start_trap
-
-_start_trap:
-    addi sp, sp, -16*8
-
-    sd ra, 0*8(sp)
-    sd t0, 1*8(sp)
-    sd t1, 2*8(sp)
-    sd t2, 3*8(sp)
-    sd t3, 4*8(sp)
-    sd t4, 5*8(sp)
-    sd t5, 6*8(sp)
-    sd t6, 7*8(sp)
-    sd a0, 8*8(sp)
-    sd a1, 9*8(sp)
-    sd a2, 10*8(sp)
-    sd a3, 11*8(sp)
-    sd a4, 12*8(sp)
-    sd a5, 13*8(sp)
-    sd a6, 14*8(sp)
-    sd a7, 15*8(sp)
-
-    add a0, sp, zero
-    jal ra, _start_trap_rust
-
-    ld ra, 0*8(sp)
-    ld t0, 1*8(sp)
-    ld t1, 2*8(sp)
-    ld t2, 3*8(sp)
-    ld t3, 4*8(sp)
-    ld t4, 5*8(sp)
-    ld t5, 6*8(sp)
-    ld t6, 7*8(sp)
-    ld a0, 8*8(sp)
-    ld a1, 9*8(sp)
-    ld a2, 10*8(sp)
-    ld a3, 11*8(sp)
-    ld a4, 12*8(sp)
-    ld a5, 13*8(sp)
-    ld a6, 14*8(sp)
-    ld a7, 15*8(sp)
-
-    addi sp, sp, 16*8
+#[doc(hidden)]
+#[naked]
+#[no_mangle]
+pub unsafe extern "C" fn start_trap() {
+    asm!(
+        "
+    .equ REGBYTES, 8
+    .macro STORE reg, offset
+        sd  \\reg, \\offset*REGBYTES(sp)
+    .endm
+    .macro LOAD reg, offset
+        ld  \\reg, \\offset*REGBYTES(sp)
+    .endm
+    .p2align 2
+    csrrw   sp, mscratch, sp
+    bnez    sp, 1f
+    /* from M level, load sp */
+    csrrw   sp, mscratch, zero
+1:
+    addi    sp, sp, -16 * REGBYTES
+    STORE   ra, 0
+    STORE   t0, 1
+    STORE   t1, 2
+    STORE   t2, 3
+    STORE   t3, 4
+    STORE   t4, 5
+    STORE   t5, 6
+    STORE   t6, 7
+    STORE   a0, 8
+    STORE   a1, 9
+    STORE   a2, 10
+    STORE   a3, 11
+    STORE   a4, 12
+    STORE   a5, 13
+    STORE   a6, 14
+    STORE   a7, 15
+    mv      a0, sp
+    call    _start_trap_rust
+    LOAD    ra, 0
+    LOAD    t0, 1
+    LOAD    t1, 2
+    LOAD    t2, 3
+    LOAD    t3, 4
+    LOAD    t4, 5
+    LOAD    t5, 6
+    LOAD    t6, 7
+    LOAD    a0, 8
+    LOAD    a1, 9
+    LOAD    a2, 10
+    LOAD    a3, 11
+    LOAD    a4, 12
+    LOAD    a5, 13
+    LOAD    a6, 14
+    LOAD    a7, 15
+    addi    sp, sp, 16 * REGBYTES
+    csrrw   sp, mscratch, sp
     mret
-
-.section .text
-.global default_setup_interrupts
-
-default_setup_interrupts:
-    // Set trap handler
-    la t0, _start_trap
-    csrw mtvec, t0
-    ret"
-);
-
+    ", options(noreturn));
+}
 
 
 /// Func that run before main  

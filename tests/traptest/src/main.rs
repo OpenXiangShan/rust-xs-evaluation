@@ -17,7 +17,7 @@ use core::alloc::Layout;
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red};
-use riscv::register::{mhartid, mie, time, mstatus};
+use riscv::{asm::wfi, register::{mhartid, mie, mip, mstatus, time}};
 use xs_hal::{XSPeripherals, hit_trap, Clint};
 use xs_rt::{entry, pre_init};
 
@@ -68,6 +68,7 @@ fn main() -> ! {
     device::print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     unsafe {
+        mip::set_mtimer();
         mie::set_mtimer();
         mstatus::set_mie();
         let clint = Clint::new();
@@ -86,6 +87,28 @@ fn mtimer_handler() {
         COUNTER += 1;
         if COUNTER % 10 == 0 {
             println!("[xs] timer interrupt! counter: {}", COUNTER);
+        }
+    }
+}
+
+#[export_name = "_mp_hook"]
+fn mp_hook() -> bool {
+    let hart_id = mhartid::read();
+    match hart_id {
+        0 => true,
+        _ => {            
+            unsafe {
+                let clint  = Clint::new();
+                clint.clear_soft(hart_id);
+                mie::set_msoft();
+                loop {
+                    wfi();
+                    if mip::read().msoft() {break;}
+                }
+                mie::clear_msoft();
+                clint.clear_soft(hart_id);
+            }
+            false
         }
     }
 }
