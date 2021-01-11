@@ -17,6 +17,7 @@ use core::alloc::Layout;
 use core::panic::PanicInfo;
 use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red};
+#[allow(unused_imports)]
 use riscv::{asm::wfi, register::{mhartid, mie, mip, mstatus, time}};
 use xs_hal::{XSPeripherals, hit_trap, Clint};
 use xs_rt::{entry, pre_init};
@@ -68,14 +69,16 @@ fn main() -> ! {
     device::print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     unsafe {
-        mip::set_mtimer();
+        // The MTIP bit is read-only and is cleared by writing to the memory-mapped machine-mode timer compare register
+        // mip::set_mtimer(); 
         mie::set_mtimer();
-        mstatus::set_mie();
+        // TODO: PC will block here
+        // mstatus::set_mie();
         let clint = Clint::new();
         clint.set_timer(mhartid::read(), clint.get_mtime() + INTERVAL);
     }
     // unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
-    hit_trap(0);
+    // hit_trap(0);
     loop {}
 }
 
@@ -83,7 +86,7 @@ fn main() -> ! {
 fn mtimer_handler() {
     unsafe {
         let clint = Clint::new();
-        clint.set_timer(mhartid::read(), time::read64() + INTERVAL);
+        clint.set_timer(mhartid::read(), clint.get_mtime() + INTERVAL);
         COUNTER += 1;
         if COUNTER % 10 == 0 {
             println!("[xs] timer interrupt! counter: {}", COUNTER);

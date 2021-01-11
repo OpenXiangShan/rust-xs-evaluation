@@ -577,7 +577,7 @@ pub static __INTERRUPTS: [Vector; 12] = [
 pub fn default_setup_interrupts() {
     unsafe { mtvec::write(start_trap as usize, TrapMode::Direct); }
 }
-
+// Ref: https://github.com/luojia65/rustsbi/blob/master/platform/qemu/src/main.rs
 #[doc(hidden)]
 #[naked]
 #[no_mangle]

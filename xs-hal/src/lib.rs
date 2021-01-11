@@ -21,7 +21,7 @@ const UARTLITE_MMIO: usize = 0x4060_0000;
 // const UARTLITE_TX_FULL: u8 = 0x08;
 // const UARTLITE_RX_VALID: u8 = 0x01;
 
-const CLINT_MMIO: usize = 0x0200_0000;
+const CLINT_MMIO: usize = 0x3800_0000;
     
 register_structs! {
     /// UartLite MMIO
