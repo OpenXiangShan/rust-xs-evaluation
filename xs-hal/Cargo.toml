@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 tock-registers = "0.6.0"
+ansi_rgb = "0.2.0"

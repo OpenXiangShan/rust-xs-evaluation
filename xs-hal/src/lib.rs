@@ -8,13 +8,15 @@
 extern crate core;
 extern crate tock_registers;
 
-use core::mem::replace;
+// use core::mem::replace;
+use core::fmt::{self, Write};
 #[allow(unused_imports)]
 use tock_registers::{
     register_structs,
     register_bitfields,
     registers::{ReadOnly, ReadWrite},
 };
+use ansi_rgb::{Foreground, blue};
 
 const UARTLITE_MMIO: usize = 0x4060_0000;
 // const UARTLITE_RST_FIFO: u8 = 0x03;
@@ -55,6 +57,10 @@ register_bitfields! [
 ];
 
 impl UartLite {
+    pub fn new() -> &'static mut UartLite {
+        unsafe { &mut *(UARTLITE_MMIO as *mut UartLite) }
+    }
+
     pub fn init(&mut self) {
         self.ctrl_reg.write(Control::RST_FIFO.val(3));
     }
@@ -97,27 +103,75 @@ impl Clint {
     }
 }
 
-pub struct XSPeripherals {
-    uart_lite: Option<usize>    // base adderss of mmio register
-}
+// TODO: find a better to abstract peripherals
+// pub struct XSPeripherals {
+//     uart_lite: Option<usize>    // base adderss of mmio register
+// }
 
-impl XSPeripherals {
-    pub const fn new() -> Self {
-        Self {
-            uart_lite: Some(UARTLITE_MMIO)
-        }
-    }
+// impl XSPeripherals {
+//     pub const fn new() -> Self {
+//         Self {
+//             uart_lite: Some(UARTLITE_MMIO)
+//         }
+//     }
 
-    pub fn take_uart_lite(&mut self) -> &'static mut UartLite {
-        let uart = replace(&mut self.uart_lite, None).unwrap();
-        unsafe { &mut *(uart as *mut UartLite) }
-    }
+//     pub fn take_uart_lite(&mut self) -> &'static mut UartLite {
+//         let uart = replace(&mut self.uart_lite, None).unwrap();
+//         unsafe { &mut *(uart as *mut UartLite) }
+//     }
 
-    pub fn release_uart_lite(&mut self) {
-        let _uart = replace(&mut self.uart_lite, Some(UARTLITE_MMIO));
-    }
-}
+//     pub fn release_uart_lite(&mut self) {
+//         let _uart = replace(&mut self.uart_lite, Some(UARTLITE_MMIO));
+//     }
+// }
 
 pub fn hit_trap(trapcode: usize) {
     unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(trapcode) :: "volatile"); }
+}
+
+pub fn puts(s: &str) {
+    let uart_lite = UartLite::new();
+    for ch in s.chars() {
+        uart_lite.putchar(ch);
+    }
+}
+
+struct XSStdout;
+
+impl fmt::Write for XSStdout {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        puts(s);
+        Ok(())
+    }
+}
+
+pub fn _print(args: fmt::Arguments) {
+    XSStdout.write_fmt(args).unwrap();
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ({
+        _print(format_args!($($arg)*));
+    });
+}
+
+#[macro_export]
+macro_rules! println {
+    () => (
+        $crate::print!("\n")
+    );
+    ($($arg:tt)*) => (
+        $crate::print!("{}\n", format_args!($($arg)*))
+    )
+}
+
+pub fn print_logo() {
+    println!("{}", " ___  ___    ________  ".fg(blue()));
+    println!("{}", "|\"  \\/\"  |  /\"       ) ".fg(blue()));
+    println!("{}", " \\   \\  /  (:   \\___/  ".fg(blue()));
+    println!("{}", "  \\  \\/    \\___  \\    ".fg(blue()));
+    println!("{}", "  /\\.  \\     __/  \\\\   ".fg(blue()));
+    println!("{}", " /  \\   \\   /\" \\   :)  ".fg(blue()));
+    println!("{}", "|___/\\___| (_______/   ".fg(blue()));
 }
