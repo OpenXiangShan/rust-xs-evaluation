@@ -592,10 +592,10 @@ pub unsafe extern "C" fn start_trap() {
         ld  \\reg, \\offset*REGBYTES(sp)
     .endm
     .p2align 2
-    csrrw   sp, mscratch, sp
-    bnez    sp, 1f
+    // csrrw   sp, mscratch, sp
+    // bnez    sp, 1f
     /* from M level, load sp */
-    csrrw   sp, mscratch, zero
+    // csrrw   sp, mscratch, zero
 1:
     addi    sp, sp, -16 * REGBYTES
     STORE   ra, 0
@@ -633,7 +633,7 @@ pub unsafe extern "C" fn start_trap() {
     LOAD    a6, 14
     LOAD    a7, 15
     addi    sp, sp, 16 * REGBYTES
-    csrrw   sp, mscratch, sp
+    // csrrw   sp, mscratch, sp
     mret
     ", options(noreturn));
 }

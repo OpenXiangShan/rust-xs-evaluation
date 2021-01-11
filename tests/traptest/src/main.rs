@@ -22,7 +22,7 @@ use xs_rt::{entry, pre_init};
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-const INTERVAL: u64 = 390000000 / 200;
+const INTERVAL: u64 = 200;
 
 static  mut COUNTER: usize = 0;
 #[cfg(not(test))]
@@ -68,7 +68,7 @@ fn main() -> ! {
         // mip::set_mtimer(); 
         mie::set_mtimer();
         // TODO: PC will block here
-        // mstatus::set_mie();
+        mstatus::set_mie();
         let clint = Clint::new();
         clint.set_timer(mhartid::read(), clint.get_mtime() + INTERVAL);
     }
@@ -83,9 +83,7 @@ fn mtimer_handler() {
         let clint = Clint::new();
         clint.set_timer(mhartid::read(), clint.get_mtime() + INTERVAL);
         COUNTER += 1;
-        if COUNTER % 10 == 0 {
-            println!("[xs] timer interrupt! counter: {}", COUNTER);
-        }
+        println!("[xs] timer interrupt! counter: {}", COUNTER);
     }
 }
 
