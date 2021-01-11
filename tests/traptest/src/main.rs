@@ -8,9 +8,6 @@ extern crate alloc;
 extern crate xs_hal;
 extern crate ansi_rgb;
 
-#[macro_use]
-mod device;
-
 #[cfg(not(test))]
 use core::alloc::Layout;
 #[cfg(not(test))]
@@ -19,13 +16,11 @@ use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red};
 #[allow(unused_imports)]
 use riscv::{asm::wfi, register::{mhartid, mie, mip, mstatus, time}};
-use xs_hal::{XSPeripherals, hit_trap, Clint};
+use xs_hal::{hit_trap, Clint, UartLite, _print, println, print_logo};
 use xs_rt::{entry, pre_init};
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
-
-static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new(); 
 
 const INTERVAL: u64 = 390000000 / 200;
 
@@ -54,7 +49,8 @@ extern "C" {
 
 #[pre_init]
 unsafe fn before_main() {
-    // TODO
+    let uart_lite = UartLite::new();
+    uart_lite.init();
 }
 
 #[entry]
@@ -65,8 +61,7 @@ fn main() -> ! {
         let heap_size = &_heap_size as *const u8 as usize;
         ALLOCATOR.lock().init(heap_bottom, heap_size);
     }
-    device::init();
-    device::print_logo();
+    print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     unsafe {
         // The MTIP bit is read-only and is cleared by writing to the memory-mapped machine-mode timer compare register

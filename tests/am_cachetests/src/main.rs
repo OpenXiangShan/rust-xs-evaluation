@@ -9,8 +9,6 @@ extern crate alloc;
 extern crate xs_hal;
 extern crate ansi_rgb;
 
-#[macro_use]
-mod device;
 mod cachetests;
 
 #[cfg(not(test))]
@@ -21,14 +19,12 @@ use buddy_system_allocator::LockedHeap;
 use ansi_rgb::{ Foreground, red, green };
 use riscv::register::{mhartid};
 use benchmark::ErrType;
-use xs_hal::{XSPeripherals, hit_trap};
+use xs_hal::{hit_trap, _print, println, print_logo, UartLite};
 use xs_rt::{entry, pre_init};
 use cachetests::test_all;
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
-
-static mut XSPERIPHERALS: XSPeripherals = XSPeripherals::new(); 
 
 #[cfg(not(test))]
 #[panic_handler]
@@ -54,7 +50,8 @@ extern "C" {
 
 #[pre_init]
 unsafe fn before_main() {
-    // TODO
+    let uart_lite = UartLite::new();
+    uart_lite.init();
 }
 
 #[entry]
@@ -65,8 +62,7 @@ fn main() -> ! {
         let heap_size = &_heap_size as *const u8 as usize;
         ALLOCATOR.lock().init(heap_bottom, heap_size);
     }
-    device::init();
-    device::print_logo();
+    print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
     let results = test_all();
     let mut is_pass = true;
