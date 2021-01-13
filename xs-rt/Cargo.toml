@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["hustccc <1276675421@qq.com>"]
 edition = "2018"
 description = "Minimal runtime / startup for XiangShan CPU's"
-keywords = ["riscv", "runtime", "startup"]
+keywords = ["XiangShan", "riscv", "runtime", "startup"]
+repository = "https://github.com/SKTT1Ryze/rust-xs-evaluation/tree/main/xs-rt"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
