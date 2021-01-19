@@ -12,3 +12,5 @@ license = "MIT"
 [dependencies]
 tock-registers = "0.6.0"
 ansi_rgb = "0.2.0"
+embedded-hal = "1.0.0-alpha.1"
+nb = "1"
