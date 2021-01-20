@@ -1,61 +1,86 @@
-/* Linker Script 语法可以参见：http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_3.html */
+MEMORY {
+    /* 存储单元的物理地址 */
+    RAM : ORIGIN = 0x80020000, LENGTH = 2M
+}
 
-/* 目标架构 */
+PROVIDE(_stext = 0x80020000);
+PROVIDE(_heap_size = 128K);
+PROVIDE(_hart_stack_size = 64K);
+PROVIDE(_max_hart_id = 1);
+
+REGION_ALIAS("REGION_TEXT", RAM);
+REGION_ALIAS("REGION_RODATA", RAM);
+REGION_ALIAS("REGION_DATA", RAM);
+REGION_ALIAS("REGION_BSS", RAM);
+REGION_ALIAS("REGION_HEAP", RAM);
+REGION_ALIAS("REGION_STACK", RAM);
+
 OUTPUT_ARCH(riscv)
 
-/* 执行入口 */
 ENTRY(_start)
 
-/* 数据存放起始地址 */
-BASE_ADDRESS = 0x80020000;
+PROVIDE(_stack_start = ORIGIN(REGION_STACK) + LENGTH(REGION_STACK));
 
 SECTIONS
-{   
-    /* . 表示当前地址（location counter） */
-    . = BASE_ADDRESS;
-
-    /* start 符号表示全部的开始位置 */
-    kernel_start = .;
-
-    . = ALIGN(4K);
-    text_start = .;
-
+{
     /* .text 字段 */
-    .text : {
+    .text _stext : {
         /* 把 entry 函数放在最前面 */
         *(.text.entry)
         /* 要链接的文件的 .text 字段集中放在这里 */
         *(.text .text.*)
-    }
-
-    . = ALIGN(4K);
-    rodata_start = .;
+        _etext = .;
+    } > REGION_TEXT
 
     /* .rodata 字段 */
-    .rodata : {
+    .rodata : ALIGN(4) {
+        _srodata = .;
         /* 要链接的文件的 .rodata 字段集中放在这里 */
         *(.rodata .rodata.*)
-    }
-
-    . = ALIGN(4K);
-    data_start = .;
+        . = ALIGN(4);
+        _erodata = .;
+    } > REGION_RODATA
 
     /* .data 字段 */
-    .data : {
+    .data : ALIGN(4) { 
+        _sidata = LOADADDR(.data);
+        _sdata = .;
+        /* Must be called __global_pointer$ for linker relaxations to work. */
+        PROVIDE(__global_pointer$ = . + 0x800);
         /* 要链接的文件的 .data 字段集中放在这里 */
+        *(.sdata .sdata.* .sdata2 .sdata2.*);
         *(.data .data.*)
-    }
-
-    . = ALIGN(4K);
-    bss_start = .;
+        . = ALIGN(4);
+        _edata = .;
+    } > REGION_DATA
 
     /* .bss 字段 */
-    .bss : {
+    .bss (NOLOAD) : {
+        _sbss = .;
         /* 要链接的文件的 .bss 字段集中放在这里 */
         *(.sbss .bss .bss.*)
-    }
+        . = ALIGN(4);
+        _ebss = .;
+    } > REGION_BSS
 
-    /* 结束地址 */
-    . = ALIGN(4K);
-    kernel_end = .;
+    .heap (NOLOAD) : {
+        _sheap = .;
+        . += _heap_size;
+        . = ALIGN(4);
+        _eheap = .;
+    } > REGION_HEAP
+
+    /* fictitious region that represents the memory available for the stack */
+    .stack (NOLOAD) : {
+        _estack = .;
+        . = _stack_start;
+        . = ALIGN(4);
+        _sstack = .;
+    } > REGION_STACK
+
+    /* Discard .eh_frame, we are not doing unwind on panic so it is not needed */
+    /DISCARD/ :
+    {
+        *(.eh_frame .eh_frame_hdr);
+    }
 }
