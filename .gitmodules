@@ -1,3 +1,6 @@
 [submodule "xs-hal"]
 	path = xs-hal
 	url = https://github.com/SKTT1Ryze/xs-hal
+[submodule "rustsbi-xs"]
+	path = rustsbi-xs
+	url = https://github.com/SKTT1Ryze/rustsbi-xs
