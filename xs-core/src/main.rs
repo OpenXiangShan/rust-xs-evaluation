@@ -88,9 +88,10 @@ fn main(hart_id: usize, _dtb_pa: usize) -> ! {
         static _heap_size: u8;
     }
     
-    if mhartid::read() == 0 {
+    if hart_id == 0 {
         let sheap = unsafe { &mut _sheap } as *mut _ as usize;
         let heap_size = unsafe { &_heap_size } as *const u8 as usize;
+        println!("[xs-core] sheap: 0x{:x}, heap_size: 0x{:x}", sheap, heap_size);
         unsafe {
             ALLOCATOR.lock().init(sheap, heap_size);
         }
