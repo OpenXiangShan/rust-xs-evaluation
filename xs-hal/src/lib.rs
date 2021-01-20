@@ -147,8 +147,6 @@ impl serial::Write<u8> for UartLite {
     }
 }
 
-/// Clint should not in embedded-hal implementation
-/// TODO: remove it
 impl Clint {
     pub unsafe fn new() -> &'static mut Clint {
         &mut *(CLINT_MMIO as *mut Clint)
