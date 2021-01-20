@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "benchmark",
+    "rustsbi-xs",
     "xs-core",
     "xs-hal",
     "xs-rt",
