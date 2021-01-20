@@ -1,0 +1,35 @@
+target := "riscv64gc-unknown-none-elf"
+mode := "release"
+build-path := "../target/" + target + "/" + mode + "/"
+os-firmware := build-path + "xs-core"
+os-bin := build-path + "xs-core.bin"
+asm-file := build-path + "xs-core.asm"
+rustbi-bin = build-path + "rustsbi-xs.bin"
+img := build-path + "img.bin"
+
+
+objdump := "rust-objdump"
+objcopy := "rust-objcopy --binary-architecture=riscv64"
+
+emu := env_var("NOOP_HOME") + "/build/" + "emu"
+
+run: build
+    @{{emu}} -I 1000000 -i {{img}}
+
+build: firmware
+    @{{objcopy}} {{os-firmware}} --strip-all -O binary {{os-bin}}
+    @cp {{rustsbi-bin}} {{img}}
+    @dd if={{os-bin}} of={{img}} bs=128k seek=1
+
+rustsbi:
+    @cd ../rustsbi-xs && just build && cd ../xs-core
+
+firmware:
+    @cargo build --target={{target}} --{{mode}}
+    @{{objdump}} -D {{os-firmware}} | less > {{asm-file}}
+
+asm: build
+    @{{objdump}} -D {{os-firmware}} | less
+
+clean:
+    @rm -rf {{build-path}}
