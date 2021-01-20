@@ -1,0 +1,3 @@
+[submodule "xs-hal"]
+	path = xs-hal
+	url = https://github.com/SKTT1Ryze/xs-hal
