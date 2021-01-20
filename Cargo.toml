@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "benchmark",
+    "xs-core",
     "xs-hal",
     "xs-rt",
     "xs-rt/macros",
