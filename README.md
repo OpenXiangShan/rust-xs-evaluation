@@ -7,6 +7,13 @@
 香山处理核性能测试 `Rust` 语言实现  
 兼香山处理核 `Rust` 嵌入式支持库实现   
 
+## Installation
+```bash
+git clone https://github.com/RISCVERS/rust-xs-evaluation
+cd rust-xs-evaluation
+git submodule update --init --recursive
+```
+
 ## Build
 环境配置请看这里：[build](./doc/build.md)   
 
