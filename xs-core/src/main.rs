@@ -6,12 +6,16 @@
 #![allow(unused)]
 
 extern crate xs_hal;
+extern crate alloc;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
 use core::panic;
 #[cfg(not(test))]
 use core::panic::PanicInfo;
+use buddy_system_allocator::LockedHeap;
+use riscv::register::mhartid;
+use alloc::{vec, vec::Vec};
 
 const SBI_SET_TIMER: usize = 0;
 const SBI_CONSOLE_PUTCHAR: usize = 1;
@@ -36,6 +40,9 @@ fn oom(_layout: Layout) -> ! {
     xs_hal::hit_trap(1);
     loop {}
 }
+
+#[global_allocator]
+static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 // Ref: https://github.com/rcore-os/rCore-Tutorial/blob/master/os/src/entry.asm
 global_asm!(
@@ -75,6 +82,24 @@ boot_stack_top:
 #[export_name = "rust_main"]
 fn main(hart_id: usize, _dtb_pa: usize) -> ! {
     println!("hart {} enter XiangShan Core in S mode", hart_id);
+
+    extern "C" {
+        static mut _sheap: u8;
+        static _heap_size: u8;
+    }
+    
+    if mhartid::read() == 0 {
+        let sheap = unsafe { &mut _sheap } as *mut _ as usize;
+        let heap_size = unsafe { &_heap_size } as *const u8 as usize;
+        unsafe {
+            ALLOCATOR.lock().init(sheap, heap_size);
+        }
+    }
+    let mut data = Vec::new();
+    for i in 0..5 {
+        data.push(i);
+    }
+    assert_eq!(data, vec![0, 1, 2, 3, 4]);
     xs_hal::hit_trap(0);
     unreachable!()
 }
