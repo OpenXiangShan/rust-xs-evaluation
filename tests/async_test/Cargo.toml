@@ -12,3 +12,4 @@ xs-rt = { path = "../../xs-rt" }
 ansi_rgb = "0.2.0"
 riscv = { git = "https://github.com/rust-embedded/riscv", features = ["inline-asm"] }
 buddy_system_allocator = "0.6.0"
+async-rt = { git = "https://github.com/SKTT1Ryze/async-rt.git", branch = "main" }

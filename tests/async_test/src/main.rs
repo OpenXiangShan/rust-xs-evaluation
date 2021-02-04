@@ -7,6 +7,7 @@
 extern crate alloc;
 extern crate xs_hal;
 extern crate ansi_rgb;
+extern crate async_rt;
 
 #[cfg(not(test))]
 use core::alloc::Layout;
@@ -18,6 +19,11 @@ use ansi_rgb::{ Foreground, red};
 use riscv::{asm::wfi, register::{mhartid, mie, mip, mstatus, time}};
 use xs_hal::{hit_trap, Clint, UartLite, _print, println, print_logo};
 use xs_rt::{entry, pre_init};
+use core::future::Future;
+use core::{
+    pin::Pin,
+    task::{Context, Poll},
+};
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
@@ -50,6 +56,26 @@ unsafe fn before_main() {
     uart_lite.init();
 }
 
+struct Foo {}
+
+impl Future for Foo {
+    type Output = ();
+
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Poll::Ready(())
+    }
+}
+
+fn a() -> impl Future<Output = ()> {
+    println!("[a] hello world");
+    Foo {}
+}
+
+fn b() -> impl Future<Output = ()> {
+    println!("[b] hello world");
+    Foo {}
+}
+
 #[entry]
 #[no_mangle]
 fn main() -> ! {
@@ -60,7 +86,15 @@ fn main() -> ! {
     }
     print_logo();
     println!("[{}] XiangShan core {} is running", "xs".fg(red()), mhartid::read());
-    // unsafe { llvm_asm!("mv a0, $0; .word 0x0005006b" :: "r"(!is_pass) :: "volatile"); }
+
+    async_rt::run(async {
+        b().await;
+        a().await;
+    });
+    async_rt::block(async {
+        a().await;
+    });
+    
     hit_trap(0);
     unreachable!()
 }
