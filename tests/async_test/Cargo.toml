@@ -1,0 +1,14 @@
+[package]
+name = "async_test"
+version = "0.1.0"
+authors = ["hustccc <1276675421@qq.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+xs-hal = { git = "https://github.com/SKTT1Ryze/xs-hal" }
+xs-rt = { path = "../../xs-rt" }
+ansi_rgb = "0.2.0"
+riscv = { git = "https://github.com/rust-embedded/riscv", features = ["inline-asm"] }
+buddy_system_allocator = "0.6.0"
